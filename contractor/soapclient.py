@@ -4,6 +4,8 @@
 
 from suds.client import Client
 from contextlib import contextmanager
+import html
+import re
 
 
 class AMIVCRMConnector(object):
@@ -69,9 +71,45 @@ class AMIVCRMConnector(object):
         yield
         self.logout()
 
+    def _tex_escape(self, text):
+        """Escape for latex."""
+        conv = {
+            '&': r'\&',
+            '%': r'\%',
+            '$': r'\$',
+            '#': r'\#',
+            '_': r'\_',
+            '{': r'\{',
+            '}': r'\}',
+            '~': r'\textasciitilde{}',
+            '^': r'\^{}',
+            '\\': r'\textbackslash{}',
+            '<': r'\textless',
+            '>': r'\textgreater',
+        }
+
+        regex = re.compile(
+            '|'.join(re.escape(key) for key in sorted(
+                conv.keys(), key=lambda item: - len(item))))
+        return regex.sub(lambda match: conv[match.group()], text)
+
+    def _safe_str(self, item):
+        """Make strings latex safe.
+
+        First convert html chars to utf-8.
+        then escape all latex relevant chars.
+        """
+        if isinstance(item, str):
+            nearly_safe = html.unescape(item)
+
+            return self._tex_escape(nearly_safe)
+        else:
+            return item
+
     def parse(self, response):
         """Turn results into list of dicts."""
-        return ([{item.name: item.value for item in entry.name_value_list}
+        return ([{item.name: self._safe_str(item.value)
+                for item in entry.name_value_list}
                 for entry in response.entry_list])
 
     def get_full_entry_list(self, module_name="", query="", order_by="",

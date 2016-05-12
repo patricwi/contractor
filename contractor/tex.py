@@ -55,12 +55,15 @@ def render_tex(president,
     else:
         commands = ["xelatex",
                     "-output-directory", output_dir,
-                    "-interaction=nonstopmode", texname]
+                    "-interaction=batchmode", texname]
 
-        subprocess.run(commands)
+        # sic! needs to be run twice to insert references
+        # Check call ensures status code 0
+        subprocess.check_call(commands)
+        subprocess.check_call(commands)
 
         # Clean up
-        for ending in ['.tex', '.aux', '.log']:
-            os.remove('%s%s' % (filename, ending))
+        # for ending in ['.tex', '.aux', '.log']:
+        #     os.remove('%s%s' % (filename, ending))
 
         return basename + '.pdf'
