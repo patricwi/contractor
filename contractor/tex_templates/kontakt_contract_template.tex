@@ -1,0 +1,96 @@
+\documentclass{scrlttr2}
+
+\author{Alexander Dietmüller}
+
+% Needed to make \input work from a different directory
+\makeatletter
+\def\input@path{{(((texpath)))}}
+\makeatother
+
+% Extended letter settings (allow sections)
+\usepackage{((( texpath )))contractsections}
+
+% Include amiv settings
+\usepackage{((( texpath )))amivdefaults}
+
+% Set kontact settings
+\providecommand{\amivsectionname}{Kommission Kontakt}
+\providecommand{\amivsectionpresident}{((( president )))}
+\renewcommand{\amivemail}{kontakt@amiv.ethz.ch}
+\renewcommand{\amivlogo}{kontakt_dark_background.png}
+
+% Create commands so they can be renewed for every letter
+\newcommand{\companyname}{}
+\newcommand{\companyaddress}{}
+\newcommand{\companycity}{}
+\newcommand{\companyrepresentative}{}
+\newcommand{\boothchoice}{}
+\newcommand{\datechoice}{}
+\newcommand{\extrachoice}{}
+
+% Include KOMA settings
+\usepackage{((( texpath )))komadefaults}
+
+% Include kontakt contract helpers
+\usepackage{((( texpath )))kontaktutils}
+
+% Sender of cover letters
+\setkomavar{signature}{((( sender )))}
+
+\begin{document}
+((* for data in letterdata *))
+% AMIV member responsible for company
+\renewcommand{\amivrepresentative}{((( data.amivrepresentative )))}
+
+% Company info
+\renewcommand{\companyname}{((( data.companyname )))}
+\renewcommand{\companyaddress}{((( data.companyaddress )))}
+\renewcommand{\companycity}{((( data.companycity )))}
+\renewcommand{\companyrepresentative}{((( data.companyrepresentative)))}
+
+\renewcommand{\boothchoice}{%
+    ((( data.boothchoice ))) \hfill ((( prices.booths[data.boothchoice] ))) CHF
+    ((* if data.boothinfo *))
+        \bigbreak
+        \noindent Standinformationen:
+        ((* if data.boothinfo=="small" *))
+			\smallboothinfo
+		((* else *))
+        	\bigboothinfo
+        ((* endif *))
+        \bigbreak
+        \noindent Der Aussteller kann einen eigenen Projektständer sowie 
+        anstelle der Stellwand ein eigenes Banner aufstellen, dieses darf 
+        jedoch die Masse des gebuchten Standes nicht überschreiten.
+    ((* endif *))
+}
+
+\renewcommand{\datechoice}{%
+	((( data.days )))
+}
+
+\renewcommand{\extrachoice}{%
+	((* if data.media *))
+		\noindent Media Paket \hfill ((( prices.media ))) CHF\\
+		\mediainfo
+		\bigbreak
+	((* endif *))((* if data.business *))
+		\noindent Business Paket \hfill ((( prices.business ))) CHF\\
+		\businessinfo
+		\bigbreak
+	((* endif *))((* if data.first *))
+		\noindent First Paket \hfill ((( prices.first ))) CHF\\
+		\firstinfo
+		\bigbreak\noindent
+	((* endif *))
+}
+
+
+% First letter, the cover letter
+\makecoverletter
+
+% Second 'letter' - the contract (twice)
+\makecontract
+\makecontract
+((* endfor *))
+\end{document}

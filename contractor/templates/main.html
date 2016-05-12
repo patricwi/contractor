@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Contractor</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+</head>
+
+<body>
+  <nav class="navbar navbar-full" style="background-color: #1f2d54;
+                       margin-bottom: 1em;">
+    <a class="navbar-brand" href="{{ url_for('main') }}">
+      <img src={{ url_for('static', filename='logo.svg') }}></img>
+    </a>
+  </nav>
+  <div class="container-fluid">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">About</h4>
+
+            This tool is still in development
+          </div>
+        </div>
+      </div>
+      <div class="col-md-9">
+        <div class="card">
+          <div class="card-block">
+            <h4 class="card-title">Companies</h4>
+            <a class="btn btn-primary-outline" 
+            href={{ url_for('send_contracts') }}>
+              Download contracts for all companies
+            </a>
+            <a class="btn btn-primary-outline" 
+            href={{ url_for('refresh') }}>
+              Refresh companies
+            </a>
+            <br/><br/>
+            <table class="table table-sm table-responsive">
+              <thead>
+                <tr>
+                  <th>Name & Address</th>
+                  <th>Representatives</th>
+                  <th>Booth</th>
+                  <th>Days</th>
+                  <th>Options</th>
+                  <th>Contract</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for c in companies %}
+                <tr>
+                  <td>
+                    {{ c.companyname }}<br/>
+                    {{ c.companyaddress }}<br/>
+                    {{ c.companycity }}
+                  </td>
+                  <td>
+                    <b>Company:</b><br/> 
+                      {{ c.companyrepresentative}}<br/>
+                    <b>AMIV:</b><br/>
+                      {{ c.amivrepresentative }}
+                  </td>
+                  <td>{{ c.boothchoice }}</td>
+                  <td>{{ c.days }}</td>
+                  <td>
+                    {{ 'First' if c.first}}
+                    {{ 'Business' if c.business}}
+                    {{ 'Media' if c.media}}
+                  </td>
+                  <td>
+                    <a class="btn btn-primary-outline"
+                       style="vertical-align=middle;"
+                       href={{ url_for('send_contracts', id=loop.index0)}}>
+                      Download contract
+                    </a>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</html>
+
