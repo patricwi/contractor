@@ -1,4 +1,4 @@
-\documentclass{scrlttr2}
+\documentclass{scrartcl}
 
 \author{Alexander Dietmüller}
 
@@ -7,8 +7,8 @@
 \def\input@path{{(((texpath)))}}
 \makeatother
 
-% Extended letter settings (allow sections)
-\usepackage{((( texpath )))contractsections}
+% User letter package
+\usepackage{scrletter}
 
 % Include amiv settings
 \usepackage{((( texpath )))amivdefaults}
@@ -85,10 +85,8 @@
 	((* endif *))
 }
 
-
 % First letter, the cover letter
 \makecoverletter
-
 % Second 'letter' - the contract (twice)
 \makecontract
 \makecontract
