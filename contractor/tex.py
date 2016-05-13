@@ -47,8 +47,8 @@ def render_tex(president,
 
     texname = filename + '.tex'
 
-    with open(texname, 'w') as f:
-        f.write(rendered)
+    with open(texname, 'wb') as f:
+        f.write(rendered.encode('utf-8'))
 
     if return_tex:
         return texname

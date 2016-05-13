@@ -3,7 +3,7 @@
 """The app."""
 
 from flask import (Flask, render_template, send_file, redirect,
-                   url_for)
+                   url_for, request)
 from flask.ext.basicauth import BasicAuth
 
 from contractor.tex import render_tex
@@ -11,10 +11,18 @@ from contractor.soapclient import CRMImporter
 import os
 import shutil
 import json
+import logging
 
 app = Flask('contractor')
 
 app.config.from_pyfile('config.py')
+
+if not app.debug:
+    logpath = os.path.join(app.config['LOG_DIR'], 
+                           'flask.log')
+    file_handler = logging.FileHandler(logpath)
+    file_handler.setLevel(app.config['LOGLEVEL'])
+    app.logger.addHandler(file_handler)
 
 # Auth
 basic_auth = BasicAuth(app)
@@ -155,4 +163,4 @@ def send_contracts(id=None):
     return send_file(path, as_attachment=True)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()
