@@ -2,30 +2,29 @@
 
 """The app."""
 
-from flask import (Flask, render_template, send_file, redirect,
-                   url_for, request)
-from flask.ext.basicauth import BasicAuth
-
-from contractor.tex import render_tex
-from contractor.soapclient import CRMImporter
 import os
 import shutil
 import json
 import logging
 
+from flask import Flask, render_template, send_file, redirect, url_for, session
+
+from contractor.tex import render_tex
+from contractor.soapclient import CRMImporter
+from contractor.api_auth import api_auth, protected
+
 app = Flask('contractor')
+
+app.config['SECRET_KEY'] = "so_incredibly_secure"
 
 app.config.from_pyfile('config.py')
 
-if not app.debug:
-    logpath = os.path.join(app.config['LOG_DIR'], 
+if not app.debug and app.config.get('ENABLE_LOG', False):
+    logpath = os.path.join(app.config['LOG_DIR'],
                            'flask.log')
     file_handler = logging.FileHandler(logpath)
     file_handler.setLevel(app.config['LOGLEVEL'])
     app.logger.addHandler(file_handler)
-
-# Auth
-basic_auth = BasicAuth(app)
 
 # Different Booth, category, day options
 # small booths
@@ -85,12 +84,18 @@ app.config['TEX_SETTINGS'] = {
     },
 }
 
+app.config['APIAUTH_LANDING_PAGE'] = 'main'
+app.config['APIAUTH_URL'] = 'https://nicco.io/amiv/'
+
 for directory in [app.config['STORAGE_DIR'], app.config['DATA_DIR']]:
     if not os.path.exists(directory):
         os.makedirs(directory)
 
 # Get CRM connection
 CRM = CRMImporter(app)
+
+# Get Auth
+app.register_blueprint(api_auth)
 
 
 # Import companies
@@ -126,13 +131,19 @@ except OSError:
     _refresh_companies()
 
 
+# Routes
+
 @app.route('/')
+@protected
 def main():
     """Main view."""
-    return render_template('main.html', companies=app.config['LETTERDATA'])
+    return render_template('main.html',
+                           user=session['logged_in'],
+                           companies=app.config['LETTERDATA'])
 
 
 @app.route('/refresh')
+@protected
 def refresh():
     """Get companies again."""
     _refresh_companies()
@@ -142,6 +153,7 @@ def refresh():
 
 @app.route('/contracts')
 @app.route('/contracts/<int:id>')
+@protected
 def send_contracts(id=None):
     """Contract creation."""
     if id is None:
@@ -163,4 +175,4 @@ def send_contracts(id=None):
     return send_file(path, as_attachment=True)
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True)

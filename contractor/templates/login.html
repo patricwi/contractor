@@ -1,0 +1,78 @@
+{% macro render_errors(field) -%}
+  {% if field.errors %}
+  <p class="help-inline text-danger" 
+     style="text-indent: 1em; margin-top: 0.5em;">
+    {% for issue in field.errors %}
+    <i>{{ issue }}</i>
+    <br/>
+    {% endfor %}
+  </p>
+  {% else %}
+  <br />
+  {% endif %} 
+{%- endmacro %}
+
+<!DOCTYPE html>
+<html style="height: 100%;">
+<head>
+  <meta charset="UTF-8">
+  <title>Contractor</title>
+
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+</head>
+
+<body style="background-color: #1f2d54; height: 100%;">
+  <div style="width: 100%;
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translateX(-50%) translateY(-50%);">
+    <div class="container"
+         style="max-width: 768px;">
+      <img src={{ url_for('static', filename='logo.svg') }}
+             width="100%" style="margin-top: 2em; margin-bottom: 1em;"/>
+    </div>
+    <br/>
+    <div class="container" style="max-width: 500px">
+      <div class="card">
+        <div class="card-block"
+             style="padding-bottom: 0em;">
+          {% if api_error %}
+          <p class="text-danger">
+            <b>AMIVAPI is unreachable.</b><br /> 
+            Please contact kontakt-it@amiv.ethz.ch or it@amiv.ethz.ch!
+          </p>
+          {% endif %}
+          {% if login_error %}
+          <p class="text-danger">
+            <i>Invalid username/password. Please try again!</i>
+          </p>
+          {% endif %}
+
+          <form method="POST" action="/login">
+              <fieldset class="form-group">
+                {{ login_form.hidden_tag() }}
+                
+                <!-- username field -->
+                <div class="input-group">
+                  {{ login_form.user(class_="form-control") }}
+                  <span class="input-group-addon" id="basic-addon2">
+                    @ethz.ch
+                  </span>
+                </div>
+                {{ render_errors(login_form.user) }}
+
+                <!-- password field -->
+                {{ login_form.password(class_="form-control") }}
+                {{ render_errors(login_form.password) }}
+
+                <input class="btn btn-primary-outline pull-md-right"
+                       type="submit" value="Login">
+
+              </fieldset>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>

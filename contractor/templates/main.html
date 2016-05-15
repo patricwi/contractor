@@ -8,11 +8,20 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-full" style="background-color: #1f2d54;
-                       margin-bottom: 1em;">
+  <nav class="navbar navbar-full navbar-dark" 
+       style="background-color: #1f2d54; margin-bottom: 1em;">
     <a class="navbar-brand" href="{{ url_for('main') }}">
       <img src={{ url_for('static', filename='logo.svg') }}></img>
     </a>
+    <ul class="nav navbar-nav pull-md-right">
+      <li class="nav-item active" style="margin-top: 0.5em;">
+        <span class="nav-link">{{ user }}</span>
+      </li>
+      <br/>
+      <li class="nav-item pull-xs-right">
+        <a class="nav-link" href={{ url_for('api_auth.logout') }}>Logout</a>
+      </li>
+    </ul>
   </nav>
   <div class="container-fluid">
     <div class="row">
