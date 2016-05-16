@@ -96,12 +96,12 @@ class AMIVCRMConnector(object):
     def _safe_str(self, item):
         r"""Make strings latex safe.
 
-        First convert html chars to utf-8.
+        First convert html chars to utf-8 and ensure unicode.
         then escape all latex relevant chars.
         then replace newlines with latex friendly '\\'
         """
         if isinstance(item, str):
-            nearly_safe = html.unescape(item)
+            nearly_safe = unicode(html.unescape(item))
 
             return self._tex_escape(nearly_safe).replace('\n', r'\\')
         else:
