@@ -81,7 +81,7 @@ def login():
 def logout():
     """Log out."""
     session.pop('logged_in', None)
-    return redirect(url_for('.login'))
+    return redirect(url_for('api_auth.login'))
 
 
 def protected(func):

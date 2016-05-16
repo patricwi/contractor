@@ -36,7 +36,7 @@
           </p>
           {% endif %}
 
-          <form method="POST" action="/login">
+          <form method="POST" action={{ url_for('api_auth.login') }}>
               <fieldset class="form-group">
                 {{ login_form.hidden_tag() }}
                 
