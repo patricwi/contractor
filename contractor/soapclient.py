@@ -94,15 +94,16 @@ class AMIVCRMConnector(object):
         return regex.sub(lambda match: conv[match.group()], text)
 
     def _safe_str(self, item):
-        """Make strings latex safe.
+        r"""Make strings latex safe.
 
         First convert html chars to utf-8.
         then escape all latex relevant chars.
+        then replace newlines with latex friendly '\\'
         """
         if isinstance(item, str):
             nearly_safe = html.unescape(item)
 
-            return self._tex_escape(nearly_safe)
+            return self._tex_escape(nearly_safe).replace('\n', r'\\')
         else:
             return item
 
@@ -187,6 +188,8 @@ class CRMImporter(object):
             'business': response['packet_c'] == "business",
             'first': response['packet_c'] == "first"
         }
+
+        print(repr(letterdata['companyaddress']))
 
         # Include country only if its not "Schweiz" and is specified
         if response.get('shipping_address_country', "Schweiz") == "Schweiz":
