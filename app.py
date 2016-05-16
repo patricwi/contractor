@@ -173,7 +173,8 @@ def main():
                            user=session['logged_in'],
                            output_format=session.get('output_format', 'mail'),
                            descriptions=app.config['DESCRIPTIONS']['html'],
-                           companies=app.config['LETTERDATA'])
+                           companies=app.config['LETTERDATA'],
+                           errors=app.config['ERRORS'])
 
 
 @app.route('/refresh')

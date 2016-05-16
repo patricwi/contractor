@@ -79,6 +79,22 @@
         </div>
       </div>
       <div class="col-md-9">
+        <!-- Errors -->
+        {% if errors %}
+        <div class="card card-inverse card-danger">
+          <div class="card-block">
+            <h4 class="card-title">Errors</h4>
+            <ul style="color: white;">
+            {% for company, issue in errors.items() %}
+              <li>
+                <b>{{ company }}:</b> {{ issue }}
+              </li>
+            {% endfor %}
+            </ul>
+          </div>
+        </div>
+        {% endif %}
+        <!-- Companies -->
         <div class="card">
           <div class="card-block">
             <h4 class="card-title">Companies</h4>
@@ -108,7 +124,8 @@
                   <td>
                     {{ c.companyname }}<br/>
                     {{ c.companyaddress }}<br/>
-                    {{ c.companycity }}
+                    {{ c.companycity }}<br/>
+                    {{ c.companycountry }}
                   </td>
                   <td>
                     <b>Company:</b><br/> 

@@ -188,6 +188,12 @@ class CRMImporter(object):
             'first': response['packet_c'] == "first"
         }
 
+        # Include country only if its not "Schweiz" and is specified
+        if response.get('shipping_address_country', "Schweiz") == "Schweiz":
+            letterdata['companycountry'] = ""
+        else:
+            letterdata['companycountry'] = response['shipping_address_country']
+
         # Get fair days
         if (response['tag1_c'] == '1') and (response['tag2_c'] == '1'):
             # Both days
