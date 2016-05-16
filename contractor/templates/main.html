@@ -123,7 +123,7 @@
                 <tr>
                   <td>
                     {{ c.companyname }}<br/>
-                    {{ c.companyaddress }}<br/>
+                    {{ c.companyaddress|replace("\\\\", "<br/>")|safe }}<br/>
                     {{ c.companycity }}<br/>
                     {{ c.companycountry }}
                   </td>
