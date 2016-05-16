@@ -38,54 +38,57 @@ bA2 = "Grosser Stand, Kategorie A, zwei Messetage"
 bB1 = "Grosser Stand, Kategorie B, ein Messetag"
 bB2 = "Grosser Stand, Kategorie B, zwei Messetage"
 # startops,
-su1 = "Startup-Stand, ein Messetag",
-su2 = "Startup-Stand, zwei Messetage",
+su1 = "Startup-Stand, ein Messetag"
+su2 = "Startup-Stand, zwei Messetage"
 
-app.config['TEX_SETTINGS'] = {
-    # booth descriotions
+app.config['DESCRIPTIONS'] = {
+    # booth descriptions, map to tex commands
     # small booths
-    'sA1': sA1,
-    'sA2': sA2,
-    'sB1': sB1,
-    'sB2': sB2,
+    'sA1': r'\smallAone',
+    'sA2': r'\smallAtwo',
+    'sB1': r'\smallBone',
+    'sB2': r'\smallBtwo',
     # big booths,
-    'bA1': bA1,
-    'bA2': bA2,
-    'bB1': bB1,
-    'bB2': bB2,
+    'bA1': r'\bigAone',
+    'bA2': r'\bigAtwo',
+    'bB1': r'\bigBone',
+    'bB2': r'\bigBtwo',
     # startops,
-    'su1': su1,
-    'su2': su2,
+    'su1': r'\startupone',
+    'su2': r'\startuptwo'
+}
 
+app.config['YEARLY_SETTINGS'] = {
+    'fairtitle': 'AMIV Kontakt.16',
     'president': 'Alexander Ens',
     'sender': 'Pascal Gutzwiller',
 
     # Fair days,
-    'day_one': 'Dienstag, 18.10.',
-    'day_two': 'Mittwoch, 19.10.',
+    'days': {
+        'first': 'Teilnahme Dienstag, 18.10.2016',
+        'second': 'Teilname Mittwoch, 19.10.2016',
+        'both': 'Teilnahme Dienstag, 18.10.2016 und Mittwoch 19.10.2016',
+    },
 
     # Prices, all in francs
     'prices': {
         'booths': {
-            sA1: '1100',
-            sA2: '2800',
-            sB1: '850',
-            sB2: '2600',
-            bA1: '2200',
-            bA2: '4800',
-            bB1: '1800',
-            bB2: '4400',
-            su1: '300',
-            su2: '750',
+            'sA1': '1100',
+            'sA2': '2800',
+            'sB1': '850',
+            'sB2': '2600',
+            'bA1': '2200',
+            'bA2': '4800',
+            'bB1': '1800',
+            'bB2': '4400',
+            'su1': '300',
+            'su2': '750',
         },
         'media': '850',
         'business': '1500',
         'first': '2500',
     },
 }
-
-app.config['APIAUTH_LANDING_PAGE'] = 'main'
-app.config['APIAUTH_URL'] = 'https://nicco.io/amiv/'
 
 for directory in [app.config['STORAGE_DIR'], app.config['DATA_DIR']]:
     if not os.path.exists(directory):
@@ -96,6 +99,8 @@ CRM = CRMImporter(app)
 
 # Get Auth
 app.register_blueprint(api_auth)
+app.config['APIAUTH_LANDING_PAGE'] = 'main'
+app.config['APIAUTH_URL'] = 'https://nicco.io/amiv/'
 
 
 # Import companies
@@ -133,10 +138,13 @@ except OSError:
 
 # Routes
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 @protected
 def main():
-    """Main view."""
+    """Main view.
+
+    Includes forms for output settings and yearly settings.
+    """
     return render_template('main.html',
                            user=session['logged_in'],
                            companies=app.config['LETTERDATA'])
@@ -161,18 +169,15 @@ def send_contracts(id=None):
     else:
         selection = [app.config['LETTERDATA'][id]]
 
-    pdfname = render_tex(app.config['TEX_SETTINGS']['president'],
-                         app.config['TEX_SETTINGS']['sender'],
-                         app.config['TEX_SETTINGS']['prices'],
-                         selection,
+    pdfname = render_tex(descriptions=app.config['DESCRIPTIONS'],
+                         letterdata=selection,
                          texpath=app.config['TEX_DIR'],
-                         output_dir=app.config['STORAGE_DIR'])
+                         output_dir=app.config['STORAGE_DIR'],
+                         **app.config['YEARLY_SETTINGS'])
 
     path = os.path.join(app.config['STORAGE_DIR'], pdfname)
-
-    print(path)
 
     return send_file(path, as_attachment=True)
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run()

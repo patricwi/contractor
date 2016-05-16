@@ -2,7 +2,7 @@
 
 """Create the xelatex files."""
 
-from jinja2 import Environment, PackageLoader
+from jinja2 import Environment, PackageLoader, StrictUndefined
 from datetime import datetime as dt
 from werkzeug.utils import secure_filename
 import subprocess
@@ -16,14 +16,18 @@ texenv.variable_start_string = '((('
 texenv.variable_end_string = ')))'
 texenv.comment_start_string = '((='
 texenv.comment_end_string = '=))'
+texenv.undefined = StrictUndefined
 
 template = texenv.get_template("kontakt_contract_template.tex")
 
 
-def render_tex(president,
-               sender,
-               prices,
-               letterdata,
+def render_tex(fairtitle="",
+               president="",
+               sender="",
+               descriptions={},
+               prices={},
+               days={},
+               letterdata=[],
                texpath='.',
                output_dir='.',
                return_tex=False):
@@ -31,10 +35,13 @@ def render_tex(president,
 
     If return_tex is true, the raw tex will be returned and nothing rendered
     """
-    rendered = template.render(texpath=texpath,
+    rendered = template.render(fairtitle=fairtitle,
+                               texpath=texpath,
                                president=president,
                                sender=sender,
+                               descriptions=descriptions,
                                prices=prices,
+                               days=days,
                                letterdata=letterdata)
 
     basename = 'contracts_' + dt.utcnow().strftime('%Y')

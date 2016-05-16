@@ -171,8 +171,6 @@ class CRMImporter(object):
         password = app.config['SOAP_PASSWORD']
         self.client = AMIVCRMConnector(url, appname, username, password)
 
-        self.settings = app.config['TEX_SETTINGS']
-
     def _parse_company_response(self, response):
         """Parse data for the template."""
         # Parse straighforward fields
@@ -194,15 +192,14 @@ class CRMImporter(object):
         if (response['tag1_c'] == '1') and (response['tag2_c'] == '1'):
             # Both days
             twodays = True
-            letterdata['days'] = "Teilnahme %s und %s" % (
-                self.settings['day_one'], self.settings['day_two'])
+            letterdata['days'] = "both"
         else:
             # only one day, which one?
             twodays = False
             if (response['tag1_c'] == '1'):
-                letterdata['days'] = "Teilnahme %s" % self.settings['day_one']
+                letterdata['days'] = "first"
             if (response['tag2_c'] == '1'):
-                letterdata['days'] = "Teilnahme %s" % self.settings['day_two']
+                letterdata['days'] = "second"
 
         # Specify two helper functions to determine booth
         def is_small_booth():
@@ -227,40 +224,40 @@ class CRMImporter(object):
                 if is_small_booth():
                     if twodays:
                         # Small booth, kat A, 2 days
-                        return self.settings['sA2']
+                        return 'sA2'
                     else:
                         # Small booth, kat A, 1 day
-                        return self.settings['sA1']
+                        return 'sA1'
                 else:
                     if twodays:
                         # Big booth, kat A, 2 days
-                        return self.settings['bA2']
+                        return 'bA2'
                     else:
                         # Big booth, kat A, 1 day
-                        return self.settings['bA1']
+                        return 'bA1'
             elif response['kategorie_c'] == 'katB':
                 if is_small_booth():
                     if twodays:
                         # Small booth, kat B, 2 days
-                        return self.settings['sB2']
+                        return 'sB2'
                     else:
                         # Small booth, kat B, 1 day
-                        return self.settings['sB1']
+                        return 'sB1'
                 else:
                     if twodays:
                         # Big booth, kat B, 2 days
-                        return self.settings['bB2']
+                        return 'bB2'
                     else:
                         # Big booth, kat B, 1 day
-                        return self.settings['bB1']
+                        return 'bB1'
             elif response['kategorie_c'] == 'katC':
                 # katC means startup, only day info required
                 if twodays:
                     # Startup, two days
-                    return self.settings['su2']
+                    return 'su2'
                 else:
                     # Startup, one day
-                    return self.settings['su1']
+                    return 'su1'
             else:
                 raise ValueError("Unrecognized value for 'kategorie_c' " +
                                  response['kategorie_c'])
@@ -281,7 +278,13 @@ class CRMImporter(object):
         # Always at the beginning of the "kontaktinfo_c" field.
         # TODO (Alex): This seems a little hacked to me. As soon as we have a
         #   proper way to identify the main contact we should switch
-        name = ''.join(response['kontaktinfo_c'].split(',')[0:2])
+        try:
+            name = ''.join(response['kontaktinfo_c'].split(',')[0:2])
+        except Exception:
+            raise ValueError("Company representative could not be imported "
+                             "from field 'kontaktinfo_c': with content "
+                             "'%s'" % response.get('kontaktinfo_c', None))
+
         letterdata['companyrepresentative'] = name
 
         return letterdata

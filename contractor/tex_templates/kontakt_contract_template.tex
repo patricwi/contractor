@@ -1,38 +1,41 @@
+% This .tex file was created automatically.
+%
+% To compile it you need the amiv tex data
+% On github: https://github.com/NotSpecial/amivtex
+% adjust the /amivtexlocation command at the beginning of the document and
+% you should be all set.
+
 \documentclass{scrartcl}
 
 \author{Alexander Dietmüller}
 
+\newcommand{\amivtexlocation}{((( texpath )))}
+
 % Needed to make \input work from a different directory
 \makeatletter
-\def\input@path{{(((texpath)))}}
+\def\input@path{{\amivtexlocation}}
 \makeatother
 
 % User letter package
 \usepackage{scrletter}
 
 % Include amiv settings
-\usepackage{((( texpath )))amivdefaults}
+\usepackage{\amivtexlocation amivdefaults}
 
-% Set kontact settings
-\providecommand{\amivsectionname}{Kommission Kontakt}
-\providecommand{\amivsectionpresident}{((( president )))}
+% Ensure kontakt logos etc.
 \renewcommand{\amivemail}{kontakt@amiv.ethz.ch}
 \renewcommand{\amivlogo}{kontakt_dark_background.png}
 
-% Create commands so they can be renewed for every letter
-\newcommand{\companyname}{}
-\newcommand{\companyaddress}{}
-\newcommand{\companycity}{}
-\newcommand{\companyrepresentative}{}
-\newcommand{\boothchoice}{}
-\newcommand{\datechoice}{}
-\newcommand{\extrachoice}{}
-
 % Include KOMA settings
-\usepackage{((( texpath )))komadefaults}
+\usepackage{\amivtexlocation komadefaults}
 
 % Include kontakt contract helpers
-\usepackage{((( texpath )))kontaktutils}
+\usepackage{\amivtexlocation kontaktutils}
+
+% Set kontact settings
+\renewcommand{\fairtitle}{((( fairtitle )))}
+\renewcommand{\amivsectionname}{Kommission Kontakt}
+\renewcommand{\amivsectionpresident}{((( president )))}
 
 % Sender of cover letters
 \setkomavar{signature}{((( sender )))}
@@ -49,7 +52,8 @@
 \renewcommand{\companyrepresentative}{((( data.companyrepresentative)))}
 
 \renewcommand{\boothchoice}{%
-    ((( data.boothchoice ))) \hfill ((( prices.booths[data.boothchoice] ))) CHF
+    ((( descriptions[data.boothchoice] ))) \hfill
+    ((( prices.booths[data.boothchoice] ))) CHF
     ((* if data.boothinfo *))
         \bigbreak
         \noindent Standinformationen:
@@ -66,7 +70,7 @@
 }
 
 \renewcommand{\datechoice}{%
-	((( data.days )))
+	((( days[data.days] )))
 }
 
 \renewcommand{\extrachoice}{%
