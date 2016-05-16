@@ -101,7 +101,7 @@ class AMIVCRMConnector(object):
         then replace newlines with latex friendly '\\'
         """
         if isinstance(item, str):
-            nearly_safe = unicode(html.unescape(item))
+            nearly_safe = html.unescape(item.decode('UTF-8'))
 
             return self._tex_escape(nearly_safe).replace('\n', r'\\')
         else:
