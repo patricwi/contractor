@@ -88,11 +88,15 @@
 		\bigbreak\noindent
 	((* endif *))
 }
-
-% First letter, the cover letter
+((* if contract_only *))
+% Only single contract
+\makecontract
+((* else *))
+% First the cover letter
 \makecoverletter
-% Second 'letter' - the contract (twice)
+% Next the contract (in duplicate)
 \makecontract
 \makecontract
+((* endif *))
 ((* endfor *))
 \end{document}

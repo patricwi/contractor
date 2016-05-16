@@ -7,7 +7,8 @@ import shutil
 import json
 import logging
 
-from flask import Flask, render_template, send_file, redirect, url_for, session
+from flask import (Flask, render_template, send_file, redirect, url_for,
+                   session, request)
 
 from contractor.tex import render_tex
 from contractor.soapclient import CRMImporter
@@ -42,20 +43,38 @@ su1 = "Startup-Stand, ein Messetag"
 su2 = "Startup-Stand, zwei Messetage"
 
 app.config['DESCRIPTIONS'] = {
-    # booth descriptions, map to tex commands
-    # small booths
-    'sA1': r'\smallAone',
-    'sA2': r'\smallAtwo',
-    'sB1': r'\smallBone',
-    'sB2': r'\smallBtwo',
-    # big booths,
-    'bA1': r'\bigAone',
-    'bA2': r'\bigAtwo',
-    'bB1': r'\bigBone',
-    'bB2': r'\bigBtwo',
-    # startops,
-    'su1': r'\startupone',
-    'su2': r'\startuptwo'
+    'tex': {
+        # booth descriptions, map to tex commands
+        # small booths
+        'sA1': r'\smallAone',
+        'sA2': r'\smallAtwo',
+        'sB1': r'\smallBone',
+        'sB2': r'\smallBtwo',
+        # big booths,
+        'bA1': r'\bigAone',
+        'bA2': r'\bigAtwo',
+        'bB1': r'\bigBone',
+        'bB2': r'\bigBtwo',
+        # startops,
+        'su1': r'\startupone',
+        'su2': r'\startuptwo'
+    },
+    'html': {
+        # booth descriptions for html
+        # small booths
+        'sA1': 'small, cat A, one day',
+        'sA2': 'small, cat A, two days',
+        'sB1': 'small, cat B, one day',
+        'sB2': 'small, cat B, two days',
+        # big booths,
+        'bA1': 'big, cat A, one day',
+        'bA2': 'big, cat A, two days',
+        'bB1': 'big, cat B, one day',
+        'bB2': 'big, cat B, two days',
+        # startops,
+        'su1': r'\startupone',
+        'su2': r'\startuptwo'
+    }
 }
 
 app.config['YEARLY_SETTINGS'] = {
@@ -143,10 +162,17 @@ except OSError:
 def main():
     """Main view.
 
-    Includes forms for output settings and yearly settings.
+    Includes output format and yearly settings.
     """
+    # Check if output format is specified
+    format = request.args.get('output', None)
+    if format in ["mail", "email", "tex"]:
+        session['output_format'] = format
+
     return render_template('main.html',
                            user=session['logged_in'],
+                           output_format=session.get('output_format', 'mail'),
+                           descriptions=app.config['DESCRIPTIONS']['html'],
                            companies=app.config['LETTERDATA'])
 
 
@@ -169,10 +195,21 @@ def send_contracts(id=None):
     else:
         selection = [app.config['LETTERDATA'][id]]
 
-    pdfname = render_tex(descriptions=app.config['DESCRIPTIONS'],
+    # Get output format, mail is default
+    output = session.get("output_format", "mail")
+
+    # Check if only tex is requested
+    return_tex = (output == "tex")
+
+    # Check if output format is email -> only single contract
+    contract_only = (output == "email")
+
+    pdfname = render_tex(descriptions=app.config['DESCRIPTIONS']['tex'],
                          letterdata=selection,
                          texpath=app.config['TEX_DIR'],
                          output_dir=app.config['STORAGE_DIR'],
+                         contract_only=contract_only,
+                         return_tex=return_tex,
                          **app.config['YEARLY_SETTINGS'])
 
     path = os.path.join(app.config['STORAGE_DIR'], pdfname)

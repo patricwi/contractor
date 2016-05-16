@@ -30,6 +30,7 @@ def render_tex(fairtitle="",
                letterdata=[],
                texpath='.',
                output_dir='.',
+               contract_only=False,
                return_tex=False):
     """Render the template and return the filename.
 
@@ -42,7 +43,8 @@ def render_tex(fairtitle="",
                                descriptions=descriptions,
                                prices=prices,
                                days=days,
-                               letterdata=letterdata)
+                               letterdata=letterdata,
+                               contract_only=contract_only)
 
     basename = 'contracts_' + dt.utcnow().strftime('%Y')
 
