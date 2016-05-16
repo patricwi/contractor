@@ -1,0 +1,13 @@
+{% macro field_errors(field) -%}
+  {% if field.errors %}
+  <p class="help-inline text-danger" 
+     style="text-indent: 1em; margin-top: 0.5em;">
+    {% for issue in field.errors %}
+    <i>{{ issue }}</i>
+    <br/>
+    {% endfor %}
+  </p>
+  {% else %}
+  <br />
+  {% endif %} 
+{%- endmacro %}

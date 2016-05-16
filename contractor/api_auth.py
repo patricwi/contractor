@@ -34,6 +34,13 @@ def login():
     login_error = False
     api_error = False
 
+    # Helper
+    _logged_in = redirect(url_for(current_app.config['APIAUTH_LANDING_PAGE']))
+
+    if session.get('logged_in', False):
+        # Already logged in
+        return _logged_in
+
     if form.validate_on_submit():
         # Login with amivpi
         apiurl = current_app.config['APIAUTH_URL']
@@ -56,9 +63,10 @@ def login():
             session['logged_in'] = user['firstname'] + " " + user['lastname']
 
             # Success! Redirect
-            return redirect(
-                url_for(current_app.config['APIAUTH_LANDING_PAGE']))
-        elif response.status_code == 401:
+            return _logged_in
+        elif response.status_code in [401, 500]:
+            # TODO (Alex): right now the api crashes with wrong credentials,
+            # change this as soon as api is fixed
             # Wrong credentials
             login_error = True
         else:

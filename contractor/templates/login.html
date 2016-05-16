@@ -1,17 +1,4 @@
-{% macro render_errors(field) -%}
-  {% if field.errors %}
-  <p class="help-inline text-danger" 
-     style="text-indent: 1em; margin-top: 0.5em;">
-    {% for issue in field.errors %}
-    <i>{{ issue }}</i>
-    <br/>
-    {% endfor %}
-  </p>
-  {% else %}
-  <br />
-  {% endif %} 
-{%- endmacro %}
-
+{% import 'utils.html' as utils %}
 <!DOCTYPE html>
 <html style="height: 100%;">
 <head>
@@ -60,11 +47,11 @@
                     @ethz.ch
                   </span>
                 </div>
-                {{ render_errors(login_form.user) }}
+                {{ utils.field_errors(login_form.user) }}
 
                 <!-- password field -->
                 {{ login_form.password(class_="form-control") }}
-                {{ render_errors(login_form.password) }}
+                {{ utils.field_errors(login_form.password) }}
 
                 <input class="btn btn-primary-outline pull-md-right"
                        type="submit" value="Login">
