@@ -72,7 +72,7 @@ def render_tex(fairtitle="",
         subprocess.check_call(commands)
 
         # Clean up
-        # for ending in ['.tex', '.aux', '.log']:
-        #     os.remove('%s%s' % (filename, ending))
+        for ending in ['.tex', '.aux', '.log']:
+            os.remove('%s%s' % (filename, ending))
 
         return basename + '.pdf'
