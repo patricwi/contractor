@@ -101,7 +101,7 @@ class AMIVCRMConnector(object):
         then replace newlines with latex friendly '\\'
         """
         if isinstance(item, str):
-            nearly_safe = html.unescape(item.decode('UTF-8'))
+            nearly_safe = html.unescape(str(item))
 
             return self._tex_escape(nearly_safe).replace('\n', r'\\')
         else:
@@ -188,8 +188,6 @@ class CRMImporter(object):
             'business': response['packet_c'] == "business",
             'first': response['packet_c'] == "first"
         }
-
-        print(repr(letterdata['companyaddress']))
 
         # Include country only if its not "Schweiz" and is specified
         if response.get('shipping_address_country', "Schweiz") == "Schweiz":
