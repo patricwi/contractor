@@ -16,8 +16,6 @@ from contractor.api_auth import api_auth, protected
 
 app = Flask('contractor')
 
-app.config['SECRET_KEY'] = "so_incredibly_secure"
-
 app.config.from_pyfile('config.py')
 
 if not app.debug and app.config.get('ENABLE_LOG', False):
