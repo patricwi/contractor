@@ -1,12 +1,17 @@
 # -*- coding: utf-8 -*-
 
-"""Create the xelatex files."""
+"""Create the xelatex files.
+
+The jinja environment and filters are based on the following flask snippet:
+
+"""
 
 from jinja2 import Environment, PackageLoader, StrictUndefined
 from datetime import datetime as dt
 from werkzeug.utils import secure_filename
 import subprocess
 import os
+import re
 
 # Create the jinja env
 texenv = Environment(loader=PackageLoader('contractor', 'tex_templates'))
@@ -17,6 +22,28 @@ texenv.variable_end_string = ')))'
 texenv.comment_start_string = '((='
 texenv.comment_end_string = '=))'
 texenv.undefined = StrictUndefined
+texenv.trim_blocks = True
+
+# Filters to turn newlines into latex \\ and to escape characters
+LATEX_SUBS = (
+    (re.compile(r'\\'), r'\\textbackslash'),
+    (re.compile(r'([{}_#%&$])'), r'\\\1'),
+    (re.compile(r'~'), r'\~{}'),
+    (re.compile(r'\^'), r'\^{}'),
+    (re.compile(r'"'), r"''"),
+    (re.compile(r'\.\.\.+'), r'\\ldots'),
+)
+
+
+def escape_tex(value):
+    """Appli regex above."""
+    newval = value
+    for pattern, replacement in LATEX_SUBS:
+        newval = pattern.sub(replacement, newval)
+    return newval
+
+texenv.filters['newline'] = lambda x: x.replace('\n', r'\\')
+texenv.filters['l'] = escape_tex  # short name because used much
 
 template = texenv.get_template("kontakt_contract_template.tex")
 

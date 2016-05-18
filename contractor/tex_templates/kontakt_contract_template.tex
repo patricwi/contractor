@@ -4,7 +4,9 @@
 % On github: https://github.com/NotSpecial/amivtex
 % adjust the /amivtexlocation command at the beginning of the document and
 % you should be all set.
-
+((= The latex escape filter was added to all text fields. =))
+((= Additionally the companyaddress has thew newline filter applied =))
+((= booth choice contains a command, therefore no latex escape is applied =))
 \documentclass{scrartcl}
 
 \author{Alexander Dietmüller}
@@ -22,10 +24,6 @@
 % Include amiv settings
 \usepackage{\amivtexlocation amivdefaults}
 
-% Ensure kontakt logos etc.
-\renewcommand{\amivemail}{kontakt@amiv.ethz.ch}
-\renewcommand{\amivlogo}{kontakt_dark_background.png}
-
 % Include KOMA settings
 \usepackage{\amivtexlocation komadefaults}
 
@@ -33,45 +31,45 @@
 \usepackage{\amivtexlocation kontaktutils}
 
 % Set kontact settings
-\renewcommand{\fairtitle}{((( fairtitle )))}
+\renewcommand{\fairtitle}{((( fairtitle|l )))}
 \renewcommand{\amivsectionname}{Kommission Kontakt}
-\renewcommand{\amivsectionpresident}{((( president )))}
+\renewcommand{\amivsectionpresident}{((( president|l )))}
 
 % Sender of cover letters
-\setkomavar{signature}{((( sender )))}
+\setkomavar{signature}{((( sender|l )))}
 
 \begin{document}
 ((* for data in letterdata *))
 % AMIV member responsible for company
-\renewcommand{\amivrepresentative}{((( data.amivrepresentative )))}
+\renewcommand{\amivrepresentative}{((( data.amivrepresentative|l )))}
 
 % Company info
-\renewcommand{\companyname}{((( data.companyname )))}
-\renewcommand{\companyaddress}{((( data.companyaddress )))}
-\renewcommand{\companycity}{((( data.companycity )))}
-\renewcommand{\companycountry}{((( data.companycountry )))}
-\renewcommand{\companyrepresentative}{((( data.companyrepresentative)))}
+\renewcommand{\companyname}{((( data.companyname|l )))}
+\renewcommand{\companyaddress}{((( data.companyaddress|l|newline )))}
+\renewcommand{\companycity}{((( data.companycity|l )))}
+\renewcommand{\companycountry}{((( data.companycountry|l )))}
+\renewcommand{\companyrepresentative}{((( data.companyrepresentative|l)))}
 
 \renewcommand{\boothchoice}{%
     ((( descriptions[data.boothchoice] ))) \hfill
     ((( prices.booths[data.boothchoice] ))) CHF
     ((* if data.boothinfo *))
-        \bigbreak
-        \noindent Standinformationen:
-        ((* if data.boothinfo=="small" *))
-			\smallboothinfo
-		((* else *))
-        	\bigboothinfo
-        ((* endif *))
-        \bigbreak
-        \noindent Der Aussteller kann einen eigenen Projektständer sowie 
-        anstelle der Stellwand ein eigenes Banner aufstellen, dieses darf 
-        jedoch die Masse des gebuchten Standes nicht überschreiten.
+    \bigbreak
+    \noindent Standinformationen:
+    ((* if data.boothinfo=="small" *))
+	\smallboothinfo
+	((* else *))
+   	\bigboothinfo
     ((* endif *))
+    \bigbreak
+    \noindent Der Aussteller kann einen eigenen Projektständer sowie 
+    anstelle der Stellwand ein eigenes Banner aufstellen, dieses darf 
+    jedoch die Masse des gebuchten Standes nicht überschreiten.
+	((* endif *))
 }
 
 \renewcommand{\datechoice}{%
-	((( days[data.days] )))
+	((( days[data.days]|l )))
 }
 
 \renewcommand{\extrachoice}{%

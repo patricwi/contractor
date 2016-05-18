@@ -1,21 +1,64 @@
 # -*- coding: utf-8 -*-
 
-"""Provide a connector to the AMIV crm."""
+"""Provide a connector to the AMIV sugarcrm.
+
+sugarcrm provides a SOAP and a REST api. At the time this tool was written
+the REST api was unfortunately not available. Therefore SOAP is used.
+
+The python library suds is used, more exactly the fork by (jurko)
+[https://bitbucket.org/jurko/suds].
+
+Information for the AMIV side can be found in the (wiki)
+[intern.amiv.ethz.ch/wiki/SugarCRM#SOAP]. Although wirtten for php the
+procedures can be copied without to much trouble.
+
+
+This file provides two classes, the first being a more generic wrapper for the
+amiv crm soap, the second being basically a wrapper around the first tailored
+to the contractor flask app.
+
+If you want to write your own python app using crm, you'll be all set copying
+the first class. Should it be used a lot it might be worth considering to move
+the connector to it's own project.
+
+In the wiki you will notice that the password in php is `md5('somestring')`.
+To get the python equivalent of this, you need:
+
+```
+from hashlib import md5
+password = md5(b'somestring').hexdigest()
+
+```
+Note: This is python 3.5. In earlier versions the import is different.
+    Furthermore notice that md5 requires the string as binary, so don't
+    forget the `b` prefix.
+"""
 
 from suds.client import Client
 from contextlib import contextmanager
 import html
-import re
 
 
 class AMIVCRMConnector(object):
     """The connector class.
 
     If you want to implement your own app you can just copy this class.
+    In the (wiki)[intern.amiv.ethz.ch/wiki/SugarCRM#SOAP] you will find the
+    url, appname, username and password.
+
+    You can use the session context to easily manage the connection.
+
+    Example usage:
+
+    ```
+    crm = AMIVCRMConnector(...)
+    with crm.session():
+        crm.get_full_entry_list(...)
+    ```
 
     Args:
         url (str): CRM url
-        appname (str): the soap appname.
+        appname (str): the soap appname
         username (str): the soap username
         password (str): the soap password
     """
@@ -71,39 +114,24 @@ class AMIVCRMConnector(object):
         yield
         self.logout()
 
-    def _tex_escape(self, text):
-        """Escape for latex."""
-        conv = {
-            '&': r'\&',
-            '%': r'\%',
-            '$': r'\$',
-            '#': r'\#',
-            '_': r'\_',
-            '{': r'\{',
-            '}': r'\}',
-            '~': r'\textasciitilde{}',
-            '^': r'\^{}',
-            '\\': r'\textbackslash{}',
-            '<': r'\textless',
-            '>': r'\textgreater',
-        }
-
-        regex = re.compile(
-            '|'.join(re.escape(key) for key in sorted(
-                conv.keys(), key=lambda item: - len(item))))
-        return regex.sub(lambda match: conv[match.group()], text)
-
     def _safe_str(self, item):
-        r"""Make strings latex safe.
+        """Escape strings.
 
-        First convert html chars to utf-8 and ensure unicode.
-        then escape all latex relevant chars.
-        then replace newlines with latex friendly '\\'
+        First of all if its a string it is actually a suds Text class.
+        In some environments this seems not to play along well with unicode.
+        (Although it is a subclass of str)
+
+
+        Therefore explicitly cast it to a str and unescape html chars.
+
+        Possible improvement: Check if soap returns anything else but strings.
+        If not, the if statement might be scraped.
+
+        Args:
+            item: The object to make safe. Changed only if subclass of str.
         """
         if isinstance(item, str):
-            nearly_safe = html.unescape(str(item))
-
-            return self._tex_escape(nearly_safe).replace('\n', r'\\')
+            return html.unescape(str(item))
         else:
             return item
 
@@ -157,6 +185,9 @@ class CRMImporter(object):
     """Handling connection and parsing of soap data.
 
     This class is specific for the kontakt contract app.
+
+    Args:
+        app (Flask): The flask object.
     """
 
     def __init__(self, app=None):
@@ -165,7 +196,11 @@ class CRMImporter(object):
             self.init_app(app)
 
     def init_app(self, app):
-        """Init app, keep a reference to soap settings."""
+        """Init app, keep a reference to soap settings.
+
+        Args:
+            app (Flask): The flask object.
+        """
         url = app.config['SOAP_URL']
         appname = app.config['SOAP_APPNAME']
         username = app.config['SOAP_USERNAME']
@@ -173,7 +208,14 @@ class CRMImporter(object):
         self.client = AMIVCRMConnector(url, appname, username, password)
 
     def _parse_company_response(self, response):
-        """Parse data for the template."""
+        """Parse data for the template.
+
+        Args:
+            response (dict): soap response as a dict
+
+        Returns:
+            dict: Data formatted for contract creation.
+        """
         # Parse straighforward fields
         letterdata = {
             'amivrepresentative': response['assigned_user_name'],
@@ -181,9 +223,6 @@ class CRMImporter(object):
             'companyaddress': response['shipping_address_street'],
             'companycity': ("%s %s" % (response['shipping_address_postalcode'],
                                        response['shipping_address_city'])),
-            'companyrepresentative': 'Somebody',
-            'boothchoice': 'not yet',
-            'boothinfo': 'not yet (small)',
             'media': response['mediapaket_c'] == "mediaPaket",
             'business': response['packet_c'] == "business",
             'first': response['packet_c'] == "first"
@@ -226,7 +265,12 @@ class CRMImporter(object):
                                  response['tischgroesse_c'])
 
         def get_booth_choice():
-            """Get booth choice."""
+            """Get booth choice.
+
+            katA is category A,
+            katB is category B,
+            katC means startup
+            """
             if response['kategorie_c'] == 'katA':
                 if is_small_booth():
                     if twodays:
@@ -297,7 +341,14 @@ class CRMImporter(object):
         return letterdata
 
     def get_contract_data(self):
-        """Get the data from soap to fill in the template."""
+        """Get the data from soap to fill in the template.
+
+        Returns:
+            tuple (list, dict): The list contains all succesfully imported
+                companies formatted for the latex template.
+                The dictionary contains all errors and has the schema:
+                companyname: reason for error.
+        """
         # Fields needed
 
         fields = [
@@ -329,7 +380,7 @@ class CRMImporter(object):
                 order_by="accounts.name",
                 select_fields=fields)
 
-        # Parse data to fit template
+        # Parse data to fit template and collect errors
         data = []
         errors = {}
 
