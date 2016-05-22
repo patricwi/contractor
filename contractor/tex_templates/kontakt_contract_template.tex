@@ -4,13 +4,24 @@
 % On github: https://github.com/NotSpecial/amivtex
 % adjust the /amivtexlocation command at the beginning of the document and
 % you should be all set.
-((= The latex escape filter was added to all text fields. =))
-((= Additionally the companyaddress has thew newline filter applied =))
-((= booth choice contains a command, therefore no latex escape is applied =))
+((= The latex escape filter was added to all text fields.
+    Additionally the companyaddress has thew newline filter applied
+    booth choice contains a command, therefore no latex escape is applied
+
+    To make the template as editable as possible, we also do the following:
+    Whenever there are several choices for a contract item, i.e. booth choice,
+    we put them all into the document and just uncomment one.
+    This makes it easy to modify the resulting .tex manually 
+
+    For this purpose we now create a uncommenting macro =))
+((* macro unc(condition) -*))
+((( '' if condition else '%' )))
+((*- endmacro *))
 \documentclass{scrartcl}
 
 \author{Alexander Dietmüller}
 
+% The path to amivtex files
 \newcommand{\amivtexlocation}{((( texpath )))}
 
 % Needed to make \input work from a different directory
@@ -30,7 +41,7 @@
 % Include kontakt contract helpers
 \usepackage{\amivtexlocation kontaktutils}
 
-% Set kontact settings
+% Kontact settings
 \renewcommand{\fairtitle}{((( fairtitle|l )))}
 \renewcommand{\amivsectionname}{Kommission Kontakt}
 \renewcommand{\amivsectionpresident}{((( president|l )))}
@@ -51,51 +62,63 @@
 \renewcommand{\companyrepresentative}{((( data.companyrepresentative|l)))}
 
 \renewcommand{\boothchoice}{%
-    ((( descriptions[data.boothchoice] ))) \hfill
+    % Uncomment the booth choice you need
+    ((( unc(data.boothchoice=='sA1') )))\smallAone
+    ((( unc(data.boothchoice=='sA2') )))\smallAtwo
+    ((( unc(data.boothchoice=='sB1') )))\smallBone
+    ((( unc(data.boothchoice=='sB2') )))\smallBtwo
+    ((( unc(data.boothchoice=='bA1') )))\bigAone
+    ((( unc(data.boothchoice=='bA2') )))\bigAtwo
+    ((( unc(data.boothchoice=='bB1') )))\bigBone
+    ((( unc(data.boothchoice=='bB2') )))\bigBtwo
+    ((( unc(data.boothchoice=='su1') )))\startupone
+    ((( unc(data.boothchoice=='su2') )))\startuptwo
+    \hfill
+    % Enter the price
     ((( prices.booths[data.boothchoice] ))) CHF
-    ((* if data.boothinfo *))
-    \bigbreak
-    \noindent Standinformationen:
-    ((* if data.boothinfo=="small" *))
-	\smallboothinfo
-	((* else *))
-   	\bigboothinfo
-    ((* endif *))
-    \bigbreak
-    \noindent Der Aussteller kann einen eigenen Projektständer sowie 
-    anstelle der Stellwand ein eigenes Banner aufstellen, dieses darf 
-    jedoch die Masse des gebuchten Standes nicht überschreiten.
-	((* endif *))
+    % Uncomment the lines below if you need booth info (either small or big)
+    ((( unc(data.boothinfo) )))\bigbreak
+    ((( unc(data.boothinfo) )))\noindent Standinformationen:
+    ((( unc(data.boothinfo=='small') )))\smallboothinfo
+    ((( unc(data.boothinfo=='big') )))\bigboothinfo
+    ((( unc(data.boothinfo) )))\bigbreak
+    ((( unc(data.boothinfo) )))\noindent Der Aussteller kann einen eigenen 
+    ((( unc(data.boothinfo) )))Projektständer sowie anstelle der Stellwand ein 
+    ((( unc(data.boothinfo) )))eigenes Banner aufstellen, dieses darf jedoch 
+    ((( unc(data.boothinfo) )))die Masse des gebuchten Standes nicht 
+    ((( unc(data.boothinfo) )))überschreiten.
 }
 
 \renewcommand{\datechoice}{%
-	((( days[data.days]|l )))
+    ((( days[data.days]|l )))
 }
 
 \renewcommand{\extrachoice}{%
-	((* if data.media *))
-		\noindent Media Paket \hfill ((( prices.media ))) CHF\\
-		\mediainfo
-		\bigbreak
-	((* endif *))((* if data.business *))
-		\noindent Business Paket \hfill ((( prices.business ))) CHF\\
-		\businessinfo
-		\bigbreak
-	((* endif *))((* if data.first *))
-		\noindent First Paket \hfill ((( prices.first ))) CHF\\
-		\firstinfo
-		\bigbreak\noindent
-	((* endif *))
+    % Uncomment the parts and bigbreaks you need
+    ((( unc(data.media) 
+    )))\noindent Media Paket \hfill ((( prices.media ))) CHF\\
+    ((( unc(data.media) )))\mediainfo
+    ((( unc(data.media and data.business) )))\bigbreak
+    
+    ((( unc(data.business) 
+    )))\noindent Business Paket \hfill ((( prices.business ))) CHF\\
+    ((( unc(data.business) )))\businessinfo
+    ((( unc((data.media or data.business) and data.first) )))\bigbreak
+    
+    ((( unc(data.first) 
+    )))\noindent First Paket \hfill ((( prices.first ))) CHF\\
+    ((( unc(data.first) )))\firstinfo
+    
+    ((( unc(not (True in [data.first, data.media, data.business])) 
+    )))Nichts gewählt.   
 }
-((* if contract_only *))
-% Only single contract
-\makecontract
-((* else *))
+
+% Cover letter and contract twice, uncomment as needed
 % First the cover letter
-\makecoverletter
-% Next the contract (in duplicate)
+((( unc(not contract_only) )))\makecoverletter
+% Next the contract (in duplicate if needed)
 \makecontract
-\makecontract
-((* endif *))
+((( unc(not contract_only) )))\makecontract
+
 ((* endfor *))
 \end{document}

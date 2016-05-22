@@ -41,22 +41,6 @@ su1 = "Startup-Stand, ein Messetag"
 su2 = "Startup-Stand, zwei Messetage"
 
 app.config['DESCRIPTIONS'] = {
-    'tex': {
-        # booth descriptions, map to tex commands
-        # small booths
-        'sA1': r'\smallAone',
-        'sA2': r'\smallAtwo',
-        'sB1': r'\smallBone',
-        'sB2': r'\smallBtwo',
-        # big booths,
-        'bA1': r'\bigAone',
-        'bA2': r'\bigAtwo',
-        'bB1': r'\bigBone',
-        'bB2': r'\bigBtwo',
-        # startops,
-        'su1': r'\startupone',
-        'su2': r'\startuptwo'
-    },
     'html': {
         # booth descriptions for html
         # small booths
@@ -203,8 +187,7 @@ def send_contracts(id=None):
     # Check if output format is email -> only single contract
     contract_only = (output == "email")
 
-    pdfname = render_tex(descriptions=app.config['DESCRIPTIONS']['tex'],
-                         letterdata=selection,
+    pdfname = render_tex(letterdata=selection,
                          texpath=app.config['TEX_DIR'],
                          output_dir=app.config['STORAGE_DIR'],
                          contract_only=contract_only,
