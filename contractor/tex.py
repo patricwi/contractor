@@ -123,9 +123,10 @@ def render_tex(fairtitle="",
                     "-interaction=batchmode", texname]
 
         # sic! needs to be run twice to insert references
-        # Check call ensures status code 0
-        subprocess.check_call(commands)
-        subprocess.check_call(commands)
+        # Capture output with PIPE (just to keep console clean)
+        # Check true requires status code 0
+        subprocess.run(commands, stdout=subprocess.PIPE, check=True)
+        subprocess.run(commands, stdout=subprocess.PIPE, check=True)
 
         # Clean up
         for ending in ['.tex', '.aux', '.log']:
