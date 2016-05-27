@@ -6,13 +6,22 @@ import os
 import shutil
 import json
 import logging
+from datetime import datetime
+from locale import setlocale, LC_TIME
 
 from flask import (Flask, render_template, send_file, redirect, url_for,
                    session, request)
+from flask_wtf import Form
+from wtforms import StringField, IntegerField, FormField, DateField
 
 from contractor.tex import render_tex
 from contractor.soapclient import CRMImporter
 from contractor.api_auth import api_auth, protected
+
+# Set locale to ensure german weekdays
+setlocale(LC_TIME, "de_CH.UTF-8")
+dateformat = "%d.%m.%Y"
+
 
 app = Flask('contractor')
 
@@ -24,21 +33,6 @@ if not app.debug and app.config.get('ENABLE_LOG', False):
     file_handler = logging.FileHandler(logpath)
     file_handler.setLevel(app.config['LOGLEVEL'])
     app.logger.addHandler(file_handler)
-
-# Different Booth, category, day options
-# small booths
-sA1 = "Kleiner Stand, Kategorie A, ein Messetag"
-sA2 = "Kleiner Stand, Kategorie A, zwei Messetage"
-sB1 = "Kleiner Stand, Kategorie B, ein Messetag"
-sB2 = "Kleiner Stand, Kategorie B, zwei Messetage"
-# big booths,
-bA1 = "Grosser Stand, Kategorie A, ein Messetag"
-bA2 = "Grosser Stand, Kategorie A, zwei Messetage"
-bB1 = "Grosser Stand, Kategorie B, ein Messetag"
-bB2 = "Grosser Stand, Kategorie B, zwei Messetage"
-# startops,
-su1 = "Startup-Stand, ein Messetag"
-su2 = "Startup-Stand, zwei Messetage"
 
 app.config['DESCRIPTIONS'] = {
     'html': {
@@ -66,31 +60,78 @@ app.config['YEARLY_SETTINGS'] = {
 
     # Fair days,
     'days': {
-        'first': 'Teilnahme Dienstag, 18.10.2016',
-        'second': 'Teilname Mittwoch, 19.10.2016',
-        'both': 'Teilnahme Dienstag, 18.10.2016 und Mittwoch 19.10.2016',
+        'first': datetime.strptime('18.10.2016', dateformat).date(),
+        'second': datetime.strptime('19.10.2016', dateformat).date(),
     },
 
     # Prices, all in francs
     'prices': {
-        'booths': {
-            'sA1': '1100',
-            'sA2': '2800',
-            'sB1': '850',
-            'sB2': '2600',
-            'bA1': '2200',
-            'bA2': '4800',
-            'bB1': '1800',
-            'bB2': '4400',
-            'su1': '300',
-            'su2': '750',
-        },
+        'sA1': '1100',
+        'sA2': '2800',
+        'sB1': '850',
+        'sB2': '2600',
+        'bA1': '2200',
+        'bA2': '4800',
+        'bB1': '1800',
+        'bB2': '4400',
+        'su1': '300',
+        'su2': '750',
         'media': '850',
         'business': '1500',
         'first': '2500',
     },
 }
 
+
+class PricesSubForm(Form):
+    """Form for prices, will be part of main form."""
+
+    # small
+    sA1 = IntegerField(render_kw={'placeholder': '1234'})
+    sA2 = IntegerField(render_kw={'placeholder': '1234'})
+    sB1 = IntegerField(render_kw={'placeholder': '1234'})
+    sB2 = IntegerField(render_kw={'placeholder': '1234'})
+
+    # big
+    bA1 = IntegerField(render_kw={'placeholder': '1234'})
+    bA2 = IntegerField(render_kw={'placeholder': '1234'})
+    bB1 = IntegerField(render_kw={'placeholder': '1234'})
+    bB2 = IntegerField(render_kw={'placeholder': '1234'})
+
+    # startup
+    su1 = IntegerField(render_kw={'placeholder': '1234'})
+    su2 = IntegerField(render_kw={'placeholder': '1234'})
+
+    # packets
+    first = IntegerField(render_kw={'placeholder': '1234'})
+    business = IntegerField(render_kw={'placeholder': '1234'})
+    media = IntegerField(render_kw={'placeholder': '1234'})
+
+
+class DaysSubForm(Form):
+    """Form for days, will be part of main form."""
+
+    first = DateField(format=dateformat,
+                      render_kw={'placeholder': 'dd.mm.yyyy'})
+    second = DateField(format=dateformat,
+                       render_kw={'placeholder': 'dd.mm.yyyy'})
+
+
+class YearlySettingsForm(Form):
+    """Form to change yearly settings for the fair."""
+
+    fairtitle = StringField('fairtitle',
+                            render_kw={'placeholder': 'Kontakt.YY'})
+    president = StringField('president',
+                            render_kw={'placeholder': 'firstname lastname'})
+    sender = StringField('sender',
+                         render_kw={'placeholder': 'firstname lastname'})
+
+    prices = FormField(PricesSubForm)
+    days = FormField(DaysSubForm)
+
+
+# Set up directories for app data and output storage
 for directory in [app.config['STORAGE_DIR'], app.config['DATA_DIR']]:
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -105,7 +146,7 @@ app.config['APIAUTH_URL'] = 'https://nicco.io/amiv/'
 
 
 # Import companies
-def _storagename(name):
+def _storagepath(name):
         return os.path.join(app.config['DATA_DIR'], name)
 
 
@@ -117,10 +158,10 @@ def _refresh_companies():
     app.config['ERRORS'] = errors
 
     # Store
-    with open(_storagename('letterdata.json'), 'w') as f:
+    with open(_storagepath('letterdata.json'), 'w') as f:
         json.dump(letterdata, f)
 
-    with open(_storagename('errors.json'), 'w') as f:
+    with open(_storagepath('errors.json'), 'w') as f:
         json.dump(errors, f)
 
     # Remove everything in storage and recreate dir
@@ -129,9 +170,9 @@ def _refresh_companies():
 
 # Load on startup
 try:
-    with open(_storagename('letterdata.json'), 'r') as f:
+    with open(_storagepath('letterdata.json'), 'r') as f:
         app.config['LETTERDATA'] = json.load(f)
-    with open(_storagename('errors.json'), 'r') as f:
+    with open(_storagepath('errors.json'), 'r') as f:
         app.config['ERRORS'] = json.load(f)
 except OSError:
     _refresh_companies()
@@ -151,9 +192,13 @@ def main():
     if format in ["mail", "email", "tex"]:
         session['output_format'] = format
 
+    # Form for yearly settings
+    settings_form = YearlySettingsForm(**app.config['YEARLY_SETTINGS'])
+
     return render_template('main.html',
                            user=session['logged_in'],
                            output_format=session.get('output_format', 'mail'),
+                           settings_form=settings_form,
                            descriptions=app.config['DESCRIPTIONS']['html'],
                            companies=app.config['LETTERDATA'],
                            errors=app.config['ERRORS'])
@@ -187,16 +232,29 @@ def send_contracts(id=None):
     # Check if output format is email -> only single contract
     contract_only = (output == "email")
 
-    pdfname = render_tex(letterdata=selection,
-                         texpath=app.config['TEX_DIR'],
-                         output_dir=app.config['STORAGE_DIR'],
-                         contract_only=contract_only,
-                         return_tex=return_tex,
-                         **app.config['YEARLY_SETTINGS'])
+    yearly = app.config['YEARLY_SETTINGS']
 
-    path = os.path.join(app.config['STORAGE_DIR'], pdfname)
+    filepath = render_tex(
+        # Data
+        letterdata=selection,
 
-    return send_file(path, as_attachment=True)
+        # Yearly settings
+        fairtitle=yearly['fairtitle'],
+        president=yearly['president'],
+        sender=yearly['sender'],
+        days=yearly['days'],
+        prices=yearly['prices'],
+
+        # Output options
+        contract_only=contract_only,
+        return_tex=return_tex,
+
+        # Tex source and storage
+        texpath=app.config['TEX_DIR'],
+        output_dir=app.config['STORAGE_DIR']
+    )
+
+    return send_file(filepath, as_attachment=True)
 
 if __name__ == "__main__":
     app.run()

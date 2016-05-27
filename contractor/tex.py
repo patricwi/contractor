@@ -12,6 +12,20 @@ Some adjustments were made:
 The render_tex function takes care of filename and directory things.
 It plugs everything into the template and can return either the .tex file or
 start latex and return the .pdf (also removes all non .pdf files)
+
+Important note on date output:
+
+The filter will use the %A option in date formatting. This will set the week-
+day depending on the locale. So make sure to actually set the locale to
+something german so it fits the rest of the contract. Example:
+
+>>> import locale
+>>> locale.setlocale(locale.LC_TIME, "de_CH.UTF-8")
+
+Done! (This is not done automatically since available locales are not
+guaranteed)
+
+
 """
 
 from jinja2 import Environment, PackageLoader, StrictUndefined
@@ -54,6 +68,15 @@ def escape_tex(value):
 texenv.filters['newline'] = lambda x: x.replace('\n', r'\\')
 texenv.filters['l'] = escape_tex  # short name because used much
 
+# Filters to parse date, including short one to list dates nicely
+texenv.filters.update({
+    # Format: Dienstag, 18.10.2016
+    'fulldate': lambda date: dt.strftime(date, "%A, %d.%m.%Y"),
+    # Format: Dienstag, 18.
+    'shortdate': lambda date: dt.strftime(date, "%A, %d.")
+})
+
+
 template = texenv.get_template("kontakt_contract_template.tex")
 
 
@@ -91,7 +114,7 @@ def render_tex(fairtitle="",
         output_dir (str): path where results will be stored.
 
     Returns:
-        str: Filename of created file
+        str: filename (including path) to output
     """
     rendered = template.render(fairtitle=fairtitle,
                                texpath=texpath,
@@ -132,4 +155,4 @@ def render_tex(fairtitle="",
         for ending in ['.tex', '.aux', '.log']:
             os.remove('%s%s' % (filename, ending))
 
-        return basename + '.pdf'
+        return filename + '.pdf'

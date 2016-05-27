@@ -75,7 +75,7 @@
     ((( unc(data.boothchoice=='su2') )))\startuptwo
     \hfill
     % Enter the price
-    ((( prices.booths[data.boothchoice] ))) CHF
+    ((( prices[data.boothchoice] ))) CHF
     % Uncomment the lines below if you need booth info (either small or big)
     ((( unc(data.boothinfo) )))\bigbreak
     ((( unc(data.boothinfo) )))\noindent Standinformationen:
@@ -91,10 +91,11 @@
 
 \renewcommand{\datechoice}{%
     % Uncomment the day choice
-    ((( unc(data.days=='first'))))Teilnahme ((( days['first']|l )))
-    ((( unc(data.days=='second'))))Teilnahme ((( days['second']|l )))
+    ((( unc(data.days=='first'))))Teilnahme ((( days['first']|fulldate )))
+    ((( unc(data.days=='second'))))Teilnahme ((( days['second']|fulldate )))
     ((( unc(data.days=='both')
-    )))Teilnahme ((( days['first'] ))) und ((( days['second']|l )))
+    )))Teilnahme ((( days['first']|shortdate ))) und ((( 
+        days['second']|fulldate )))
     }
 
 \renewcommand{\extrachoice}{%
