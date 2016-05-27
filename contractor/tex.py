@@ -47,8 +47,7 @@ texenv.undefined = StrictUndefined
 texenv.trim_blocks = True
 
 
-# Filters to turn newlines into latex \\ and to escape characters
-
+# Add additional filters
 def escape_tex(value):
     """Regex for most tex relevant things."""
     subs = (
@@ -65,11 +64,14 @@ def escape_tex(value):
         newval = pattern.sub(replacement, newval)
     return newval
 
-texenv.filters['newline'] = lambda x: x.replace('\n', r'\\')
-texenv.filters['l'] = escape_tex  # short name because used much
-
-# Filters to parse date, including short one to list dates nicely
 texenv.filters.update({
+    # Escaping for tex, short name because used often
+    'l': escape_tex,
+
+    # Escape newline
+    'newline': lambda x: x.replace('\n', r'\\'),
+
+    # Filters to parse date, including short one to list dates nicely
     # Format: Dienstag, 18.10.2016
     'fulldate': lambda date: dt.strftime(date, "%A, %d.%m.%Y"),
     # Format: Dienstag, 18.
