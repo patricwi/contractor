@@ -1,0 +1,6 @@
+{% extends 'card_layout.html' %}
+{% block icon %}fa-wrench{% endblock %}
+{% block title %}Yearly Settings{% endblock %}
+{% block content %}
+{{ utils.format_form(settings_form, "POST", url_for('main')) }}
+{% endblock %}

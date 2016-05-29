@@ -1,0 +1,12 @@
+<div class="card card-inverse card-danger">
+  <div class="card-block">
+    <h4 class="card-title">Errors</h4>
+    <ul style="color: white;">
+    {% for company, issue in errors.items() %}
+      <li>
+        <b>{{ company }}:</b> {{ issue }}
+      </li>
+    {% endfor %}
+    </ul>
+  </div>
+</div>

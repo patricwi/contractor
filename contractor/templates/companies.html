@@ -1,0 +1,59 @@
+{% extends 'card_layout.html' %}
+{% block icon %}fa-industry{% endblock %}
+{% block title %}Companies{% endblock %}
+{% block content %}
+<a class="btn btn-primary-outline" 
+   href={{ url_for('send_contracts') }}>
+  Download contracts for all companies
+</a>
+<a class="btn btn-primary-outline" 
+href={{ url_for('refresh') }}>
+  Refresh companies
+</a>
+<br/><br/>
+
+<table class="table table-sm table-responsive">
+  <thead>
+    <tr>
+      <th>Name & Address</th>
+      <th>Representatives</th>
+      <th>Booth</th>
+      <th>Days</th>
+      <th>Options</th>
+      <th>Contract</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for c in companies %}
+    <tr>
+      <td>
+        {{ c.companyname }}<br/>
+        {{ c.companyaddress|replace("\n", "<br/>")|safe }}<br/>
+        {{ c.companycity }}<br/>
+        {{ c.companycountry }}
+      </td>
+      <td>
+        <b>Company:</b><br/> 
+          {{ c.companyrepresentative}}<br/>
+        <b>AMIV:</b><br/>
+          {{ c.amivrepresentative }}
+      </td>
+      <td>{{ descriptions[c.boothchoice] }}</td>
+      <td>{{ c.days }}</td>
+      <td>
+        {{ 'First' if c.first}}
+        {{ 'Business' if c.business}}
+        {{ 'Media' if c.media}}
+      </td>
+      <td>
+        <a class="btn btn-primary-outline"
+           style="vertical-align=middle;"
+           href="{{ url_for('send_contracts', id=loop.index0) }}">
+          Download contract
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

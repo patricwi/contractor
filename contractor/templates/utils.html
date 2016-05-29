@@ -1,13 +1,77 @@
-{% macro field_errors(field) -%}
-  {% if field.errors %}
-  <p class="help-inline text-danger" 
-     style="text-indent: 1em; margin-top: 0.5em;">
-    {% for issue in field.errors %}
-    <i>{{ issue }}</i>
-    <br/>
-    {% endfor %}
-  </p>
-  {% else %}
-  <br />
-  {% endif %} 
+{# Helper to add description and errors below field #}
+{% macro helpers(field) %}
+{# description if any#}
+{% if field.description %} 
+<small class="text-muted">{{ field.description }}</small>
+{% endif %}
+
+{# errors if any #}  
+{% if field.errors %}
+<ul class="list-unstyled text-danger" style="margin-bottom: 0em;">
+  {% for issue in field.errors %}
+  <li>{{ issue }}</li>
+  {% endfor %}
+  </ul>
+{% endif %}
+{% endmacro %}
+
+{# Macro to create form #}
+{% macro format_form(form, method, url, subform=False) -%}
+{% if not(subform) %}
+<form method={{ method }} action={{ url }}>
+{% endif %}  
+  {% for field in form %}
+  {# Check for special fields #}
+    {% if field.type == 'CSRFTokenField' %}
+      {{ field }}
+
+    {% elif field.type == 'PriceField' %}
+    <div class="form-group row" style="margin-bottom: 0.1em;">
+      {{ field.label(class="col-sm-6 form-control-label")}}
+      <div class="col-sm-6">
+        <div class="input-group input-group-sm">
+          {# input #}
+          {{ field(class_="form-control form-control-sm") }}
+          
+          {# Add CHF after input #}
+          <span class="input-group-addon">
+            <b>CHF</b>
+          </span>
+        </div>
+      {{ helpers(field) }}
+      </div>
+    </div>
+
+    {% elif field.type == 'FormField' %}
+    <div class="card">
+      <div class="card-header"><b>{{ field.label.text }}</b></div>
+      <div class="card-block small">
+      <div class="container-fluid">
+      {{ format_form(field, subform=True) }}
+      </div>
+      </div>
+    </div>
+    
+    {% else %}
+    {# default #}
+    <fieldset class="form-group">
+      {# label #}
+      <b>{{ field.label }}</b>
+
+      {# content #}
+      {{ field(class="form-control form-control-sm") }}
+    
+      {{ helpers(field) }}
+    </fieldset>
+    {% endif %}
+  {% endfor %}
+
+{% if not(subform) %}
+  {# submit button #}
+  <fieldset class="form-group" style="margin-bottom: 0em;">
+    <button class="btn btn-primary-outline pull-xs-right"
+            type="submit">Submit</button>
+  </fieldset>
+</form>
+{% endif %}
 {%- endmacro %}

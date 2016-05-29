@@ -1,0 +1,19 @@
+<nav class="navbar navbar-full navbar-dark" 
+     style="background-color: #1f2d54; margin-bottom: 1em;">
+  
+  <a class="navbar-brand" href="{{ url_for('main') }}">
+    <img src={{ url_for('static', filename='logo.svg') }}></img>
+  </a>
+  <div class="nav navbar-nav pull-sm-right">
+    <ul class="list-unstyled" style="padding-top: 0.5em; padding-left: 0em;">
+      <li class="nav-item active nav-link pull-xs-left pull-sm-right">
+        {{ user }}
+      </li>
+      <br class="hidden-xs-down" />
+      <li class="nav-item pull-xs-right">
+        <a class="nav-link" href={{ url_for('api_auth.logout') }}>Logout</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+  

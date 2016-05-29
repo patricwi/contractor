@@ -47,16 +47,19 @@
                     @ethz.ch
                   </span>
                 </div>
-                {{ utils.field_errors(login_form.user) }}
-
+                {{ utils.helpers(login_form.user) }}
+              </fieldset>
+              <fieldset class="form-group">
                 <!-- password field -->
                 {{ login_form.password(class_="form-control") }}
-                {{ utils.field_errors(login_form.password) }}
-
-                <input class="btn btn-primary-outline pull-md-right"
-                       type="submit" value="Login">
-
+                {{ utils.helpers(login_form.password) }}
               </fieldset>
+              <fieldset class="form-group">
+              <button type="submit" 
+                      class="btn btn-primary-outline pull-xs-right">
+                Login
+              </fieldset>
+              </div>
           </form>
         </div>
       </div>

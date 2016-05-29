@@ -1,3 +1,4 @@
+{% import 'utils.html' as utils %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -5,157 +6,30 @@
   <title>Contractor</title>
 
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+
+  <!-- Font awesome icons -->
+  <script src="https://use.fontawesome.com/dd6b7aac9b.js"></script>
+
 </head>
 
 <body>
-  <nav class="navbar navbar-full navbar-dark" 
-       style="background-color: #1f2d54; margin-bottom: 1em;">
-    <a class="navbar-brand" href="{{ url_for('main') }}">
-      <img src={{ url_for('static', filename='logo.svg') }}></img>
-    </a>
-    <ul class="nav navbar-nav pull-md-right">
-      <li class="nav-item active" style="margin-top: 0.5em;">
-        <span class="nav-link">{{ user }}</span>
-      </li>
-      <br/>
-      <li class="nav-item pull-xs-right">
-        <a class="nav-link" href={{ url_for('api_auth.logout') }}>Logout</a>
-      </li>
-    </ul>
-  </nav>
+  {% include 'navbar.html' %}
   <div class="container-fluid">
     <div class="row">
-      <div class="col-md-3">
-        <div class="card">
-          <div class="card-block">
-            <h4 class="card-title">About</h4>
-
-            This tool is still in development
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-block">
-            <h4 class="card-title">Output format</h4>
-            <!-- Change output to mail -->
-            <a class="btn btn-primary-outline btn-sm
-                      {{ 'active' if output_format == 'mail' }}"
-               href="{{ url_for('main') }}?output=mail"
-               style="width: 6em;">
-               Mail
-             </a>
-            <p class="small"><i>
-              Includes cover letter and contract in duplicate (.pdf)
-            </i></p>
-            
-            <!-- Change output to email -->
-            <a class="btn btn-primary-outline btn-sm
-                      {{ 'active' if output_format=='email' }}"
-               href="{{ url_for('main') }}?output=email"
-               style="width: 6em;">
-               E-Mail
-             </a>
-            <p class="small"><i>
-              No cover letter, single contract per company (.pdf)
-            </i></p>
-            
-            <!-- Change output to soruce -->
-            <a class="btn btn-primary-outline btn-sm
-                      {{ 'active' if output_format=='tex' }}"
-               href="{{ url_for('main') }}?output=tex"
-               style="width: 6em;">
-               Source
-            </a>
-            <p class="small"><i>
-              Modify and compile manually (.tex)
-            </i></p>
-          </div>
-        </div>
-        <div class="card">
-          <div class="card-block">
-            <h4 class="card-title">Yearly settings</h4>
-
-            Not yet implemented.
-          </div>
-        </div>
+      <div class="col-lg-5 col-xl-3">
+        {% include 'about.html' %}
+        {% include 'output.html' %}
+        {% include 'settings.html' %}
       </div>
-      <div class="col-md-9">
+      <div class="col-lg-7 col-xl-9">
         <!-- Errors -->
         {% if errors %}
-        <div class="card card-inverse card-danger">
-          <div class="card-block">
-            <h4 class="card-title">Errors</h4>
-            <ul style="color: white;">
-            {% for company, issue in errors.items() %}
-              <li>
-                <b>{{ company }}:</b> {{ issue }}
-              </li>
-            {% endfor %}
-            </ul>
-          </div>
-        </div>
+        {% include 'errors.html' %}
         {% endif %}
+        
         <!-- Companies -->
-        <div class="card">
-          <div class="card-block">
-            <h4 class="card-title">Companies</h4>
-            <a class="btn btn-primary-outline" 
-            href={{ url_for('send_contracts') }}>
-              Download contracts for all companies
-            </a>
-            <a class="btn btn-primary-outline" 
-            href={{ url_for('refresh') }}>
-              Refresh companies
-            </a>
-            <br/><br/>
-            <table class="table table-sm table-responsive">
-              <thead>
-                <tr>
-                  <th>Name & Address</th>
-                  <th>Representatives</th>
-                  <th>Booth</th>
-                  <th>Days</th>
-                  <th>Options</th>
-                  <th>Contract</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for c in companies %}
-                <tr>
-                  <td>
-                    {{ c.companyname }}<br/>
-                    {{ c.companyaddress|replace("\n", "<br/>")|safe }}<br/>
-                    {{ c.companycity }}<br/>
-                    {{ c.companycountry }}
-                  </td>
-                  <td>
-                    <b>Company:</b><br/> 
-                      {{ c.companyrepresentative}}<br/>
-                    <b>AMIV:</b><br/>
-                      {{ c.amivrepresentative }}
-                  </td>
-                  <td>{{ descriptions[c.boothchoice] }}</td>
-                  <td>{{ c.days }}</td>
-                  <td>
-                    {{ 'First' if c.first}}
-                    {{ 'Business' if c.business}}
-                    {{ 'Media' if c.media}}
-                  </td>
-                  <td>
-                    <a class="btn btn-primary-outline"
-                       style="vertical-align=middle;"
-                       href={{ url_for('send_contracts', id=loop.index0)}}>
-                      Download contract
-                    </a>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-
+        {% include 'companies.html' %}
       </div>
     </div>
   </div>
 </html>
-
