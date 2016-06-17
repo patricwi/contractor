@@ -35,7 +35,7 @@ def login():
     api_error = False
 
     # Helper
-    _logged_in = redirect(url_for(current_app.config['APIAUTH_LANDING_PAGE']))
+    _logged_in = redirect('/')
 
     if session.get('logged_in', False):
         # Already logged in
@@ -43,7 +43,7 @@ def login():
 
     if form.validate_on_submit():
         # Login with amivpi
-        apiurl = current_app.config['APIAUTH_URL']
+        apiurl = current_app.config['AMIVAPI_URL']
 
         data = {
             'user': form.user.data,

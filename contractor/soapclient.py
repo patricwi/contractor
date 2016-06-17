@@ -9,7 +9,7 @@ The python library suds is used, more exactly the fork by (jurko)
 [https://bitbucket.org/jurko/suds].
 
 Information for the AMIV side can be found in the (wiki)
-[intern.amiv.ethz.ch/wiki/SugarCRM#SOAP]. Although wirtten for php the
+[intern.amiv.ethz.ch/wiki/SugarCRM#SOAP]. Although written for php the
 procedures can be copied without to much trouble.
 
 
@@ -71,10 +71,6 @@ class AMIVCRMConnector(object):
         self.username = username
         self.password = password
 
-    def init_app(self, app):
-        """Save app object to access settings."""
-        self.app = app
-
     def login(self):
         """Login.
 
@@ -120,7 +116,6 @@ class AMIVCRMConnector(object):
         First of all if its a string it is actually a suds Text class.
         In some environments this seems not to play along well with unicode.
         (Although it is a subclass of str)
-
 
         Therefore explicitly cast it to a str and unescape html chars.
 
@@ -196,16 +191,32 @@ class CRMImporter(object):
             self.init_app(app)
 
     def init_app(self, app):
-        """Init app, keep a reference to soap settings.
+        """Init app.
+
+        Read soap settings and get data.
 
         Args:
             app (Flask): The flask object.
         """
-        url = app.config['SOAP_URL']
-        appname = app.config['SOAP_APPNAME']
-        username = app.config['SOAP_USERNAME']
-        password = app.config['SOAP_PASSWORD']
+        try:
+            url = app.config['SOAP_URL']
+            appname = app.config['SOAP_APPNAME']
+            username = app.config['SOAP_USERNAME']
+            password = app.config['SOAP_PASSWORD']
+        except:
+            # In python 3, this will "reraise" - the old stacktrace won't
+            # be lost
+            raise Exception("SOAP login data missing. "
+                            "Call setup.py to create.")
+
         self.client = AMIVCRMConnector(url, appname, username, password)
+
+        # Get initial data
+        self.refresh()
+
+    def refresh(self):
+        """Connect to CRM and refresh company data."""
+        (self.data, self.errors) = self._get_contract_data()
 
     def _parse_company_response(self, response):
         """Parse data for the template.
@@ -340,7 +351,7 @@ class CRMImporter(object):
 
         return letterdata
 
-    def get_contract_data(self):
+    def _get_contract_data(self):
         """Get the data from soap to fill in the template.
 
         Returns:
