@@ -24,8 +24,9 @@ app_root = os.path.dirname(os.path.realpath(__file__))
               prompt="Enter the directory for yearly settings",
               default=app_root)
 @click.option('--locale',
-              prompt="Enter the locale to use. Must be a locale that exists "
-                     "on the system and uses german weekdays.",
+              prompt="Enter the locale to use. Must be a locale that  uses "
+                     "german weekdays. (On a linux system, you can use "
+                     "'locale -a' to list available locales)",
               default="de_CH.utf-8")
 def init(soapuser, soappass, storage_dir, settings_dir, locale):
     """Create user config and directories needed.
