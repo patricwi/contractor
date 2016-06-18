@@ -2,6 +2,7 @@
 
 """The app."""
 
+from os import path
 from locale import setlocale, LC_TIME
 from ruamel import yaml
 
@@ -12,6 +13,9 @@ from contractor.tex import render_tex
 from contractor.soapclient import CRMImporter
 from contractor.api_auth import api_auth, protected
 from contractor.yearly_settings import YearlySettingsForm, get_yearly_settings
+
+# Find the directory where the script is placed
+root_dir = path.dirname(path.realpath(__file__))
 
 app = Flask('contractor')
 
@@ -109,8 +113,8 @@ def send_contracts(id=None):
         contract_only=contract_only,
         return_tex=return_tex,
 
-        # Tex source and storage
-        texpath=app.config['TEX_DIR'],
+        # Tex source (in git submodule) and storage (from config)
+        texpath=path.join(root_dir, 'amivtex'),
         output_dir=app.config['STORAGE_DIR']
     )
 
