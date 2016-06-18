@@ -16,7 +16,9 @@ This file provides basically two things:
 """
 
 from ruamel import yaml
+from datetime import datetime as dt
 
+from flask import current_app
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, FormField
 from wtforms.validators import InputRequired
@@ -25,15 +27,45 @@ from wtforms.fields.html5 import IntegerField, DateField
 # Don't like this very much, because the values could be changed
 # in app.config without affecting this. But this is the simplest solution
 # For now and it doesn't really make sense to complicate it without reason.
-from contractor.settings import CHOICES, FULLTEXT, DEFAULT_YEARLY_SETTINGS
+from contractor.settings import CHOICES, FULLTEXT
 
 # Date format that works well with html5 date input field
 DATEFORMAT = "%Y-%m-%d"
 DATEPLACEHOLDER = "yyyy-mm-dd"
 
+# Defaults for yearly settings, from the 2016 fair
+DEFAULT_YEARLY_SETTINGS = {
+    'fairtitle': 'AMIV Kontakt.16',
+    'president': 'Alexander Ens',
+    'sender': 'Pascal Gutzwiller\nQuästor Kommission Kontakt',
 
-def get_yearly_settings():
-    """Get yearly settings.
+    # Fair days,
+    'days': {
+        'first': dt(2016, 10, 18),
+        'second': dt(2016, 10, 19),
+    },
+
+    # Prices, all in francs
+    'prices': {
+        'sA1': '1100',
+        'sA2': '2800',
+        'sB1': '850',
+        'sB2': '2600',
+        'bA1': '2200',
+        'bA2': '4800',
+        'bB1': '1800',
+        'bB2': '4400',
+        'su1': '300',
+        'su2': '750',
+        'media': '850',
+        'business': '1500',
+        'first': '2500',
+    },
+}
+
+
+def load_yearly_settings():
+    """Get yearly settings and store them in application config.
 
     First import defaults from app_config.
 
@@ -47,6 +79,8 @@ def get_yearly_settings():
     except OSError:
         # No updates from file
         pass
+
+    current_app.config['YEARLY_SETTINGS'] = settings
 
     return settings
 
@@ -120,7 +154,7 @@ class YearlySettingsForm(Form):
         # Autoloader will get general defaults from settings and overwrite from
         # yearly_settings file if fould
         if auto:
-            defaults = get_yearly_settings()
+            defaults = load_yearly_settings()
         else:
             defaults = {}
 

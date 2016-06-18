@@ -2,8 +2,6 @@
 
 """App settings."""
 
-from datetime import datetime as dt
-
 # All SOAP settings except password
 SOAP_URL = "https://people.ee.ethz.ch/~amivkt/crm/service/v2/soap.php?wsdl"
 SOAP_APPNAME = "AMIV Kontakt: Internal: Customer Relationship Management"
@@ -11,9 +9,6 @@ SOAP_USERNAME = "soap"
 
 # URL for amivapi
 AMIVAPI_URL = 'https://nicco.io/amiv/'
-
-# Folders
-TEX_DIR = "/home/alex/amivtex/"
 
 # All different options in neat order (used to create form)
 CHOICES = ['sA1', 'sA2', 'sB1', 'sB2',
@@ -40,34 +35,4 @@ FULLTEXT = {
     'media': 'media packet',
     'business': 'business packet',
     'first': 'first packet'
-}
-
-# Defaults for yearly settings, from the 2016 fair
-DEFAULT_YEARLY_SETTINGS = {
-    'fairtitle': 'AMIV Kontakt.16',
-    'president': 'Alexander Ens',
-    'sender': 'Pascal Gutzwiller\nQuästor Kommission Kontakt',
-
-    # Fair days,
-    'days': {
-        'first': dt(2016, 10, 18),
-        'second': dt(2016, 10, 19),
-    },
-
-    # Prices, all in francs
-    'prices': {
-        'sA1': '1100',
-        'sA2': '2800',
-        'sB1': '850',
-        'sB2': '2600',
-        'bA1': '2200',
-        'bA2': '4800',
-        'bB1': '1800',
-        'bB2': '4400',
-        'su1': '300',
-        'su2': '750',
-        'media': '850',
-        'business': '1500',
-        'first': '2500',
-    },
 }

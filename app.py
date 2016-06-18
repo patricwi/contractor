@@ -12,7 +12,7 @@ from flask import (Flask, render_template, send_file, redirect, url_for,
 from contractor.tex import render_tex
 from contractor.soapclient import CRMImporter
 from contractor.api_auth import api_auth, protected
-from contractor.yearly_settings import YearlySettingsForm, get_yearly_settings
+from contractor.yearly_settings import YearlySettingsForm, load_yearly_settings
 
 # Find the directory where the script is placed
 root_dir = path.dirname(path.realpath(__file__))
@@ -95,8 +95,8 @@ def send_contracts(id=None):
     # Check if output format is email -> only single contract
     contract_only = (output == "email")
 
-    # Create the yearly settings form. data will be autoloaded.
-    yearly = get_yearly_settings()
+    # Get yearly settings
+    yearly = load_yearly_settings()
 
     filepath = render_tex(
         # Data
