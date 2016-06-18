@@ -26,7 +26,7 @@ app_root = os.path.dirname(os.path.realpath(__file__))
 @click.option('--locale',
               prompt="Enter the locale to use. Must be a locale that exists "
                      "on the system and uses german weekdays.",
-              default="de_CH.UTF-8")
+              default="de_CH.utf-8")
 def init(soapuser, soappass, storage_dir, settings_dir, locale):
     """Create user config and directories needed.
 
