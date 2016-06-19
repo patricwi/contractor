@@ -62,7 +62,6 @@ def main():
                            user=session['logged_in'],
                            output_format=session.get('output_format', 'mail'),
                            settings_form=settings_form,
-                           descriptions=app.config['FULLTEXT'],
                            companies=CRM.data,
                            errors=CRM.errors)
 

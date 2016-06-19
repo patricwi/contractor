@@ -38,12 +38,13 @@ href={{ url_for('refresh') }}>
         <b>AMIV:</b><br/>
           {{ c.amivrepresentative }}
       </td>
-      <td>{{ descriptions[c.boothchoice] }}</td>
+      <td>{{ c.boothchoice }}</td>
       <td>{{ c.days }}</td>
       <td>
-        {{ 'First' if c.first}}
-        {{ 'Business' if c.business}}
-        {{ 'Media' if c.media}}
+        {# Only display short names #}
+        {{ c.first.name if c.first}}
+        {{ c.business.name if c.business}}
+        {{ c.media.name if c.media}}
       </td>
       <td>
         <a class="btn btn-primary-outline"

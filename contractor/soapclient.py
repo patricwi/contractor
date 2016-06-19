@@ -38,6 +38,8 @@ from suds.client import Client
 from contextlib import contextmanager
 import html
 
+from .choices import BoothChoice, PacketChoice
+
 
 class AMIVCRMConnector(object):
     """The connector class.
@@ -227,20 +229,42 @@ class CRMImporter(object):
         Returns:
             dict: Data formatted for contract creation.
         """
-        # Parse straighforward fields
+        # Because of the way the amiv letter works, street and city must not be
+        # None
+        missing = [field for field in ['shipping_address_street',
+                                       'shipping_address_postalcode',
+                                       'shipping_address_city']
+                   if response[field] is None]
+
+        if len(missing) > 0:
+            raise Exception("The following fields are missing: " +
+                            ', '.join(missing))
+
+        # Basic fields
         letterdata = {
             'amivrepresentative': response['assigned_user_name'],
             'companyname': response['name'],
             'companyaddress': response['shipping_address_street'],
             'companycity': ("%s %s" % (response['shipping_address_postalcode'],
                                        response['shipping_address_city'])),
-            'media': response['mediapaket_c'] == "mediaPaket",
-            'business': response['packet_c'] == "business",
-            'first': response['packet_c'] == "first"
         }
 
+        # Get packets
+        letterdata['media'] = (
+            PacketChoice.media
+            if response['mediapaket_c'] == "mediaPaket" else None)
+
+        letterdata['business'] = (
+            PacketChoice.business
+            if response['packet_c'] == "business" else None)
+
+        letterdata['first'] = (
+            PacketChoice.first
+            if response['packet_c'] == "first" else None)
+
         # Include country only if its not "Schweiz" and is specified
-        if response.get('shipping_address_country', "Schweiz") == "Schweiz":
+        country = response.get('shipping_address_country', "Schweiz")
+        if country in ["Schweiz", None]:
             letterdata['companycountry'] = ""
         else:
             letterdata['companycountry'] = response['shipping_address_country']
@@ -248,93 +272,39 @@ class CRMImporter(object):
         # Get fair days
         if (response['tag1_c'] == '1') and (response['tag2_c'] == '1'):
             # Both days
-            twodays = True
+            n_days = 2
             letterdata['days'] = "both"
         else:
-            # only one day, which one?
-            twodays = False
+            # only one day
+            n_days = 1
+
+            # Check which day to print correct date on contract
             if (response['tag1_c'] == '1'):
                 letterdata['days'] = "first"
             if (response['tag2_c'] == '1'):
                 letterdata['days'] = "second"
 
-        # Specify two helper functions to determine booth
-        def is_small_booth():
-            """Check if booth is small.
+        # Get booth choice
+        # The field 'tischgroesse_c' is weirdly formatted.
+        # 'kein' == small both
+        # 'ein' == big booth
+        # 'zwei' == startup
+        if response['tischgroesse_c'] == 'kein':
+            boothsize = "big"
+        elif response['tischgroesse_c'] == 'ein':
+            boothsize = "small"
+        elif response['tischgroesse_c'] == 'zwei':
+            boothsize = "startup"
+        else:
+            raise ValueError("Unrecognized value for 'tischgroesse_c': " +
+                             response['tischgroesse_c'])
 
-            The field 'tischgroesse_c' is weirdly formatted.
+        # Get kategory, map katA to A etc
+        mapping = {"kat" + letter: letter for letter in ['A', 'B', 'C']}
+        category = mapping[response['kategorie_c']]
 
-            a value of 'kein' means small both,
-            a value of 'ein' means big booth.
-            """
-            if response['tischgroesse_c'] == 'kein':
-                return True
-            elif response['tischgroesse_c'] == 'ein':
-                return False
-            else:
-                raise ValueError("Unrecognized value for 'tischgroesse_c': " +
-                                 response['tischgroesse_c'])
-
-        def get_booth_choice():
-            """Get booth choice.
-
-            katA is category A,
-            katB is category B,
-            katC means startup
-            """
-            if response['kategorie_c'] == 'katA':
-                if is_small_booth():
-                    if twodays:
-                        # Small booth, kat A, 2 days
-                        return 'sA2'
-                    else:
-                        # Small booth, kat A, 1 day
-                        return 'sA1'
-                else:
-                    if twodays:
-                        # Big booth, kat A, 2 days
-                        return 'bA2'
-                    else:
-                        # Big booth, kat A, 1 day
-                        return 'bA1'
-            elif response['kategorie_c'] == 'katB':
-                if is_small_booth():
-                    if twodays:
-                        # Small booth, kat B, 2 days
-                        return 'sB2'
-                    else:
-                        # Small booth, kat B, 1 day
-                        return 'sB1'
-                else:
-                    if twodays:
-                        # Big booth, kat B, 2 days
-                        return 'bB2'
-                    else:
-                        # Big booth, kat B, 1 day
-                        return 'bB1'
-            elif response['kategorie_c'] == 'katC':
-                # katC means startup, only day info required
-                if twodays:
-                    # Startup, two days
-                    return 'su2'
-                else:
-                    # Startup, one day
-                    return 'su1'
-            else:
-                raise ValueError("Unrecognized value for 'kategorie_c' " +
-                                 response['kategorie_c'])
-
-        # Get booth choice and boothinfo
-        letterdata['boothchoice'] = get_booth_choice()
-
-        try:
-            if is_small_booth():
-                letterdata['boothinfo'] = 'small'
-            else:
-                letterdata['boothinfo'] = 'big'
-        except ValueError:
-            # Exception is raised for startups, no booth info
-            letterdata['boothinfo'] = ''
+        # With size, category and days we can get the right choice
+        letterdata['boothchoice'] = BoothChoice((boothsize, category, n_days))
 
         # Get person that did the fair signup:
         # Always at the beginning of the "kontaktinfo_c" field.

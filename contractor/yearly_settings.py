@@ -17,23 +17,22 @@ This file provides basically two things:
 
 from ruamel import yaml
 from datetime import datetime as dt
+from itertools import chain
 
-from flask import current_app
 from flask_wtf import Form
 from wtforms import StringField, TextAreaField, FormField
 from wtforms.validators import InputRequired
 from wtforms.fields.html5 import IntegerField, DateField
 
-# Don't like this very much, because the values could be changed
-# in app.config without affecting this. But this is the simplest solution
-# For now and it doesn't really make sense to complicate it without reason.
-from contractor.settings import CHOICES, FULLTEXT
+from .choices import BoothChoice, PacketChoice
 
 # Date format that works well with html5 date input field
 DATEFORMAT = "%Y-%m-%d"
 DATEPLACEHOLDER = "yyyy-mm-dd"
 
 # Defaults for yearly settings, from the 2016 fair
+# This is just for convenience. With those defaults we never have to deal with
+# missing yearly data
 DEFAULT_YEARLY_SETTINGS = {
     'fairtitle': 'AMIV Kontakt.16',
     'president': 'Alexander Ens',
@@ -65,7 +64,7 @@ DEFAULT_YEARLY_SETTINGS = {
 
 
 def load_yearly_settings():
-    """Get yearly settings and store them in application config.
+    """Get yearly settings from defaults and file.
 
     First import defaults from app_config.
 
@@ -79,8 +78,6 @@ def load_yearly_settings():
     except OSError:
         # No updates from file
         pass
-
-    current_app.config['YEARLY_SETTINGS'] = settings
 
     return settings
 
@@ -100,10 +97,12 @@ class _PricesSubForm(Form):
 
     pass
 
-for shortname in CHOICES:
+# Iterate over enum. While they can be used as dict keys, we can't use them
+# as attribute name. So we use the name field of the enum as field name
+for choice in chain(BoothChoice, PacketChoice):
     setattr(_PricesSubForm,
-            shortname,
-            _PriceField(label=FULLTEXT[shortname],
+            choice.name,
+            _PriceField(label=str(choice),
                         validators=[InputRequired()],
                         render_kw={'placeholder': '1234'}))
 

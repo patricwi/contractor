@@ -118,6 +118,9 @@ def render_tex(fairtitle="",
     Returns:
         str: filename (including path) to output
     """
+    # We need to make sure the tex path ends in a slash, use os.path for that
+    texpath = os.path.join(texpath, '')
+
     rendered = template.render(fairtitle=fairtitle,
                                texpath=texpath,
                                president=president,

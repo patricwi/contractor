@@ -63,30 +63,31 @@
 
 \renewcommand{\boothchoice}{%
     % Uncomment the booth choice you need
-    ((( unc(data.boothchoice=='sA1') )))\smallAone
-    ((( unc(data.boothchoice=='sA2') )))\smallAtwo
-    ((( unc(data.boothchoice=='sB1') )))\smallBone
-    ((( unc(data.boothchoice=='sB2') )))\smallBtwo
-    ((( unc(data.boothchoice=='bA1') )))\bigAone
-    ((( unc(data.boothchoice=='bA2') )))\bigAtwo
-    ((( unc(data.boothchoice=='bB1') )))\bigBone
-    ((( unc(data.boothchoice=='bB2') )))\bigBtwo
-    ((( unc(data.boothchoice=='su1') )))\startupone
-    ((( unc(data.boothchoice=='su2') )))\startuptwo
+    ((( unc(data.boothchoice.name=='sA1') )))\smallAone
+    ((( unc(data.boothchoice.name=='sA2') )))\smallAtwo
+    ((( unc(data.boothchoice.name=='sB1') )))\smallBone
+    ((( unc(data.boothchoice.name=='sB2') )))\smallBtwo
+    ((( unc(data.boothchoice.name=='bA1') )))\bigAone
+    ((( unc(data.boothchoice.name=='bA2') )))\bigAtwo
+    ((( unc(data.boothchoice.name=='bB1') )))\bigBone
+    ((( unc(data.boothchoice.name=='bB2') )))\bigBtwo
+    ((( unc(data.boothchoice.name=='su1') )))\startupone
+    ((( unc(data.boothchoice.name=='su2') )))\startuptwo
     \hfill
     % Enter the price
-    ((( prices[data.boothchoice] ))) CHF
+    ((( prices[data.boothchoice.name] ))) CHF
     % Uncomment the lines below if you need booth info (either small or big)
-    ((( unc(data.boothinfo) )))\bigbreak
-    ((( unc(data.boothinfo) )))\noindent Standinformationen:
-    ((( unc(data.boothinfo=='small') )))\smallboothinfo
-    ((( unc(data.boothinfo=='big') )))\bigboothinfo
-    ((( unc(data.boothinfo) )))\bigbreak
-    ((( unc(data.boothinfo) )))\noindent Der Aussteller kann einen eigenen 
-    ((( unc(data.boothinfo) )))Projektständer sowie anstelle der Stellwand ein 
-    ((( unc(data.boothinfo) )))eigenes Banner aufstellen, dieses darf jedoch 
-    ((( unc(data.boothinfo) )))die Masse des gebuchten Standes nicht 
-    ((( unc(data.boothinfo) )))überschreiten.
+    ((( unc(data.boothchoice.size != 'startup') )))\bigbreak
+    ((( unc(data.boothchoice.size != 'startup') )))\noindent Standinformationen:
+    ((( unc(data.boothchoice.size == 'small') )))\smallboothinfo
+    ((( unc(data.boothchoice.size == 'big') )))\bigboothinfo
+    ((( unc(data.boothchoice.size != 'startup') )))\bigbreak
+    ((( unc(data.boothchoice.size != 'startup') 
+    )))\noindent Der Aussteller kann einen eigenen Projektständer sowie 
+    ((( unc(data.boothchoice.size != 'startup') 
+    ))) anstelle der Stellwand ein eigenes Banner aufstellen, dieses darf 
+    ((( unc(data.boothchoice.size != 'startup') 
+    ))) jedoch die Masse des gebuchten Standes nicht überschreiten.
 }
 
 \renewcommand{\datechoice}{%
@@ -104,16 +105,16 @@
     )))\noindent Media Paket \hfill ((( prices.media ))) CHF\\
     ((( unc(data.media) )))\mediainfo
     ((( unc(data.media and data.business) )))\bigbreak
-    
+
     ((( unc(data.business) 
     )))\noindent Business Paket \hfill ((( prices.business ))) CHF\\
     ((( unc(data.business) )))\businessinfo
     ((( unc((data.media or data.business) and data.first) )))\bigbreak
-    
+
     ((( unc(data.first) 
     )))\noindent First Paket \hfill ((( prices.first ))) CHF\\
     ((( unc(data.first) )))\firstinfo
-    
+
     ((( unc(not (True in [data.first, data.media, data.business])) 
     )))Nichts gewählt.   
 }
