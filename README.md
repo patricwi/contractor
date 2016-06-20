@@ -26,7 +26,8 @@ python init.py
 ```
 
 and this will be taken care of. You also need to input a locale that works on 
-your system. It is important that the locale provides german weekdays,
+your system. It is important that the locale provides german weekdays, or else
+the contracts will look bad.
 
 ## Testing
 
@@ -37,3 +38,9 @@ connection. Use `py.test` to run them.
 > pip install pytest
 > py.test
 ```
+
+The tests musst be run from the root directory (where the amivtex dir is) or 
+the tex tests won't be able to find the .tex source.
+
+*Beware:* The tex test tries a **lot** of choices and takes a lot of time to
+finish!

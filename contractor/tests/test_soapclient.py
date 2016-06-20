@@ -38,6 +38,8 @@ class CRMTest(TestCase):
         """
         conn = CRMImporter(app)
 
-        (companies, errors) = conn.get_contract_data()
+        # Import
+        conn.refresh()
 
-        self.assertTrue(len(companies) > 0)
+        # Check something was imported
+        self.assertTrue(len(conn.data) > 0)

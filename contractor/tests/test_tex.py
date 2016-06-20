@@ -10,6 +10,8 @@ following:
 * All contract and output combinations work without crashing (smoke testing)
 * There will be a file created in the end
 * There will be exactly one file (cleanup works)
+
+This test must be run from the same directory where the "amivtex" directory is!
 """
 
 from unittest import TestCase
@@ -17,11 +19,11 @@ from tempfile import TemporaryDirectory
 import os
 from subprocess import CalledProcessError
 from pprint import pformat
+from itertools import count, chain
+from datetime import datetime as dt
 
-from app import app
 from contractor.tex import render_tex
-
-TEX_DIR = app.config['TEX_DIR']  # Only thing needed from actual config
+from contractor.choices import BoothChoice, PacketChoice
 
 
 class TEXTest(TestCase):
@@ -35,30 +37,20 @@ class TEXTest(TestCase):
         TODO: Maybe some of this can be arranged nicer.
         """
         # Booth choice
-        for booth in ['sA1', 'sA2', 'sB1', 'sB2',
-                      'bA1', 'bA2', 'bB1', 'bB2',
-                      'su1', 'su2']:
-
-            # boothinfo
-            if booth[0:2] == 'su':
-                boothinfo = ''
-            elif booth[0] == 's':
-                boothinfo = 'small'
-            else:
-                boothinfo = 'big'
+        for booth in BoothChoice:
 
             # days
-            if booth[2] == '1':
+            if booth.days == 1:
                 daychoice = ['first', 'second']
             else:
                 daychoice = ['both']
 
             for days in daychoice:
                 # packets (they are exclusive since first includes business)
-                for (business, first) in [(True, False),
-                                          (False, True),
-                                          (False, False)]:
-                    for media in [True, False]:
+                for (business, first) in [(PacketChoice.business, None),
+                                          (None, PacketChoice.first),
+                                          (None, None)]:
+                    for media in [PacketChoice.media, None]:
                         # Companycountry can either be empty (Switzerland)
                         # Or will be specified (all other countries)
                         for companycountry in ['', 'Faraway']:
@@ -79,7 +71,6 @@ class TEXTest(TestCase):
 
                                 # booth and day
                                 'boothchoice': booth,
-                                'boothinfo': boothinfo,
                                 'days': days,
 
                                 # packets
@@ -96,6 +87,8 @@ class TEXTest(TestCase):
         Args:
             data (list): companydata to create contract for
         """
+        counter = count()
+
         # Loop through format
         for format in self.output_formats:
             contract_only = (format == "email")
@@ -106,35 +99,23 @@ class TEXTest(TestCase):
             with TemporaryDirectory(prefix="contractor") as dir:
                 render_tex(
                     letterdata=data,
-                    texpath=TEX_DIR,
+                    texpath="./amivtex",
                     output_dir=dir,
                     contract_only=contract_only,
                     return_tex=return_tex,
                     fairtitle="Superfair",
                     president="El Presidente",
                     sender="Herr Handlanger",
+                    # Generate prices for all choicesin a loop with
+                    # Counter as a price
                     prices={
-                        'booths': {
-                            'sA1': '1',
-                            'sA2': '2',
-                            'sB1': '3',
-                            'sB2': '4',
-                            'bA1': '5',
-                            'bA2': '6',
-                            'bB1': '7',
-                            'bB2': '8',
-                            'su1': '9',
-                            'su2': '10',
-                        },
-                        'media': '11',
-                        'business': '12',
-                        'first': '13',
+                        choice.name: next(counter) for choice in chain(
+                            BoothChoice, PacketChoice)
                     },
                     days={
-                        'first': 'Someday',
-                        'second': 'Other doy',
-                        'both': 'All the days!'
-                    }
+                        'first': dt(2016, 10, 18),
+                        'second': dt(2016, 10, 19),
+                    },
                 )
 
                 # Only one file (pdf or tex) is created in the end

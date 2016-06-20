@@ -43,6 +43,11 @@ def init(soapuser, soappass, storage_dir, settings_dir, locale):
     click.echo('Checking locale...')
     setlocale(LC_TIME, locale)
 
+    # Warning if the locale doesn't look like a german locale
+    if locale[0:2] != 'de':
+        click.echo("Warning: '%s' doesn't look like a german locale. The "
+                   "contracts might turn out bad!")
+
     # Generate secret key and encode the bytes
     click.echo('Generate secret key...')
     key = b64encode(os.urandom(256)).decode('utf_8')
