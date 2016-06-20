@@ -6,7 +6,7 @@ from functools import wraps
 import requests
 
 from flask import (Blueprint, redirect, url_for, session,
-                   render_template, current_app)
+                   render_template, current_app, request)
 
 from flask_wtf import Form
 from wtforms import StringField, PasswordField
@@ -34,8 +34,8 @@ def login():
     login_error = False
     api_error = False
 
-    # Helper
-    _logged_in = redirect('/')
+    # Helper, redirect to root of app
+    _logged_in = redirect(request.script_root)
 
     if session.get('logged_in', False):
         # Already logged in
