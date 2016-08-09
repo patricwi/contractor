@@ -290,9 +290,9 @@ class CRMImporter(object):
         # 'ein' == big booth
         # 'zwei' == startup
         if response['tischgroesse_c'] == 'kein':
-            boothsize = "big"
-        elif response['tischgroesse_c'] == 'ein':
             boothsize = "small"
+        elif response['tischgroesse_c'] == 'ein':
+            boothsize = "big"
         elif response['tischgroesse_c'] == 'zwei':
             boothsize = "startup"
         else:
