@@ -46,19 +46,21 @@ def login():
         apiurl = current_app.config['AMIVAPI_URL']
 
         data = {
-            'user': form.user.data,
+            'username': form.user.data,
             'password': form.password.data}
 
-        response = requests.post(apiurl + 'sessions', data=data)
+        # TODO: Remove verify=False as soon as we have a better cert
+        response = requests.post(apiurl + 'sessions', data=data, verify=False)
 
         if response.status_code == 201:
-            id = response.json()['user_id']
+            id = response.json()['user']
             token = response.json()['token']
 
             # Use requests session to get username
             s = requests.Session()
             s.auth = (token, '')
-            user = s.get(apiurl + 'users/%s' % id).json()
+            # TODO: Remove verify=False as soon as we have a better cert
+            user = s.get(apiurl + 'users/%s' % id, verify=False).json()
 
             session['logged_in'] = user['firstname'] + " " + user['lastname']
 
