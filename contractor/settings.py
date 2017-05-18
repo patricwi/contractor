@@ -8,4 +8,4 @@ SOAP_APPNAME = "AMIV Kontakt: Internal: Customer Relationship Management"
 SOAP_USERNAME = "soap"
 
 # URL for amivapi
-AMIVAPI_URL = 'https://amiv-apidev.vsos.ethz.ch/'
+AMIVAPI_URL = 'https://amiv-api.ethz.ch/'
