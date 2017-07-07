@@ -8,7 +8,7 @@ import requests
 from flask import (Blueprint, redirect, url_for, session,
                    render_template, current_app, request)
 
-from flask_wtf import Form
+from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import DataRequired
 
@@ -16,7 +16,7 @@ api_auth = Blueprint('api_auth', __name__)
 """The blueprint used for the endpoints."""
 
 
-class LoginForm(Form):
+class LoginForm(FlaskForm):
     """Form for api login data."""
 
     user = StringField('user',
@@ -49,8 +49,7 @@ def login():
             'username': form.user.data,
             'password': form.password.data}
 
-        # TODO: Remove verify=False as soon as we have a better cert
-        response = requests.post(apiurl + 'sessions', data=data, verify=False)
+        response = requests.post(apiurl + 'sessions', data=data)
 
         if response.status_code == 201:
             id = response.json()['user']
@@ -59,17 +58,13 @@ def login():
             # Use requests session to get username
             s = requests.Session()
             s.auth = (token, '')
-            # TODO: Remove verify=False as soon as we have a better cert
-            user = s.get(apiurl + 'users/%s' % id, verify=False).json()
+            user = s.get(apiurl + 'users/%s' % id).json()
 
             session['logged_in'] = user['firstname'] + " " + user['lastname']
 
             # Success! Redirect
             return _logged_in
-        elif response.status_code in [401, 500]:
-            # TODO (Alex): right now the api crashes with wrong credentials,
-            # change this as soon as api is fixed
-            # Wrong credentials
+        elif response.status_code == 401:
             login_error = True
         else:
             # AMIVAPI is unreachable
