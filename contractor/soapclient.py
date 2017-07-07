@@ -290,11 +290,11 @@ class CRMImporter(object):
         # 'ein' == big booth
         # 'zwei' == startup
         if response['tischgroesse_c'] == 'kein':
-            boothsize = "small"
-        elif response['tischgroesse_c'] == 'ein':
-            boothsize = "big"
-        elif response['tischgroesse_c'] == 'zwei':
             boothsize = "startup"
+        elif response['tischgroesse_c'] == 'ein':
+            boothsize = "small"
+        elif response['tischgroesse_c'] == 'zwei':
+            boothsize = "big"
         else:
             raise ValueError("Unrecognized value for 'tischgroesse_c': " +
                              response['tischgroesse_c'])
