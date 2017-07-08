@@ -4,35 +4,28 @@
 
 from os import path
 from locale import setlocale, LC_TIME
-from ruamel import yaml
 
 from flask import (Flask, render_template, send_file, redirect, url_for,
                    session, request)
 
 from contractor.tex import render_tex
-from contractor.soapclient import CRMImporter
+from contractor.soapclient import Importer
 from contractor.api_auth import api_auth, protected
 from contractor.yearly_settings import YearlySettingsForm, load_yearly_settings
 
-# Find the directory where the script is placed
-root_dir = path.dirname(path.realpath(__file__))
-
 app = Flask('contractor')
+app.config.from_object('config')
 
-app.config.from_object('contractor.settings')
-
-# Load User config
-try:
-    with open('config.yml', 'r') as f:
-        app.config.from_mapping(yaml.load(f))
-except:
-    raise("No config found! Use `python init.py` to create.")
+# If directories have not been defined, use '.cache' in current working dir
+app.config.setdefault('STORAGE_DIR', path.abspath('./.cache'))
+app.config.setdefault('SETTINGS_DIR', path.abspath('./.cache'))
 
 # Set locale to ensure correct weekday format
+app.config.setdefault('LOCALE', 'de_CH.utf-8')
 setlocale(LC_TIME, app.config['LOCALE'])
 
 # Get CRM connection
-CRM = CRMImporter(app)
+CRM = Importer(app.config['SOAP_USERNAME'], app.config['SOAP_PASSWORD'])
 
 # Get Auth
 app.register_blueprint(api_auth)
@@ -48,8 +41,8 @@ def main():
     Includes output format and yearly settings.
     """
     # Check if output format is specified
-    format = request.args.get('output', None)
-    if format in ["mail", "email", "tex"]:
+    output_format = request.args.get('output', None)
+    if output_format in ["mail", "email", "tex"]:
         session['output_format'] = format
 
     # Form for yearly settings
@@ -112,8 +105,7 @@ def send_contracts(id=None):
         contract_only=contract_only,
         return_tex=return_tex,
 
-        # Tex source (in git submodule) and storage (from config)
-        texpath=path.join(root_dir, 'amivtex'),
+        # Storage (from config)
         output_dir=app.config['STORAGE_DIR']
     )
 

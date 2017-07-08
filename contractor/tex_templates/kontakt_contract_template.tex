@@ -1,9 +1,5 @@
 % This .tex file was created automatically.
-%
-% To compile it you need the amiv tex data
-% On github: https://github.com/NotSpecial/amivtex
-% adjust the /amivtexlocation command at the beginning of the document and
-% you should be all set.
+
 ((= The latex escape filter was added to all text fields.
     Additionally the companyaddress has thew newline filter applied
     booth choice contains a command, therefore no latex escape is applied
@@ -11,40 +7,17 @@
     To make the template as editable as possible, we also do the following:
     Whenever there are several choices for a contract item, i.e. booth choice,
     we put them all into the document and just uncomment one.
-    This makes it easy to modify the resulting .tex manually 
+    This makes it easy to modify the resulting .tex manually
 
     For this purpose we now create a uncommenting macro =))
 ((* macro unc(condition) -*))
 ((( '' if condition else '%' )))
 ((*- endmacro *))
-\documentclass{scrartcl}
-
-\author{Alexander Dietmüller}
-
-% The path to amivtex files
-\newcommand{\amivtexlocation}{((( texpath )))}
-
-% Needed to make \input work from a different directory
-\makeatletter
-\def\input@path{{\amivtexlocation}}
-\makeatother
-
-% User letter package
-\usepackage{scrletter}
-
-% Include amiv settings
-\usepackage{\amivtexlocation amivdefaults}
-
-% Include KOMA settings
-\usepackage{\amivtexlocation komadefaults}
-
-% Include kontakt contract helpers
-\usepackage{\amivtexlocation kontaktutils}
+\documentclass[kontakt]{amivletter}
 
 % Kontact settings
-\renewcommand{\fairtitle}{((( fairtitle|l )))}
-\renewcommand{\amivsectionname}{Kommission Kontakt}
-\renewcommand{\amivsectionpresident}{((( president|l )))}
+\fairtitle{((( fairtitle|l )))}
+\kontaktpresident{((( president|l )))}
 
 % Sender of cover letters
 \setkomavar{signature}{((( sender|l|newline )))}
@@ -52,16 +25,16 @@
 \begin{document}
 ((* for data in letterdata *))
 % AMIV member responsible for company
-\renewcommand{\amivrepresentative}{((( data.amivrepresentative|l )))}
+\representative{((( data.amivrepresentative|l )))}
 
 % Company info
-\renewcommand{\companyname}{((( data.companyname|l )))}
-\renewcommand{\companyaddress}{((( data.companyaddress|l|newline )))}
-\renewcommand{\companycity}{((( data.companycity|l )))}
-\renewcommand{\companycountry}{((( data.companycountry|l )))}
-\renewcommand{\companyrepresentative}{((( data.companyrepresentative|l)))}
+\name{((( data.companyname|l )))}
+\address{((( data.companyaddress|l|newline )))}
+\city{((( data.companycity|l )))}
+\country{((( data.companycountry|l )))}
+\contact{((( data.companyrepresentative|l)))}
 
-\renewcommand{\boothchoice}{%
+\boothchoice{%
     % Uncomment the booth choice you need
     ((( unc(data.boothchoice.name=='sA1') )))\smallAone
     ((( unc(data.boothchoice.name=='sA2') )))\smallAtwo
@@ -82,41 +55,41 @@
     ((( unc(data.boothchoice.size == 'small') )))\smallboothinfo
     ((( unc(data.boothchoice.size == 'big') )))\bigboothinfo
     ((( unc(data.boothchoice.size != 'startup') )))\bigbreak
-    ((( unc(data.boothchoice.size != 'startup') 
-    )))\noindent Der Aussteller kann einen eigenen Projektständer sowie 
-    ((( unc(data.boothchoice.size != 'startup') 
-    ))) anstelle der Stellwand ein eigenes Banner aufstellen, dieses darf 
-    ((( unc(data.boothchoice.size != 'startup') 
+    ((( unc(data.boothchoice.size != 'startup')
+    )))\noindent Der Aussteller kann einen eigenen Projektständer sowie
+    ((( unc(data.boothchoice.size != 'startup')
+    ))) anstelle der Stellwand ein eigenes Banner aufstellen, dieses darf
+    ((( unc(data.boothchoice.size != 'startup')
     ))) jedoch die Masse des gebuchten Standes nicht überschreiten.
 }
 
-\renewcommand{\datechoice}{%
+\datechoice{%
     % Uncomment the day choice
     ((( unc(data.days=='first'))))Teilnahme ((( days['first']|fulldate )))
     ((( unc(data.days=='second'))))Teilnahme ((( days['second']|fulldate )))
     ((( unc(data.days=='both')
-    )))Teilnahme ((( days['first']|shortdate ))) und ((( 
+    )))Teilnahme ((( days['first']|shortdate ))) und (((
         days['second']|fulldate )))
     }
 
-\renewcommand{\extrachoice}{%
+\extrachoice{%
     % Uncomment the parts and bigbreaks you need
-    ((( unc(data.media) 
+    ((( unc(data.media)
     )))\noindent Media Paket \hfill ((( prices.media ))) CHF\\
     ((( unc(data.media) )))\mediainfo
     ((( unc(data.media and data.business) )))\bigbreak
 
-    ((( unc(data.business) 
+    ((( unc(data.business)
     )))\noindent Business Paket \hfill ((( prices.business ))) CHF\\
     ((( unc(data.business) )))\businessinfo
     ((( unc((data.media or data.business) and data.first) )))\bigbreak
 
-    ((( unc(data.first) 
+    ((( unc(data.first)
     )))\noindent First Paket \hfill ((( prices.first ))) CHF\\
     ((( unc(data.first) )))\firstinfo
 
-    ((( unc(not (True in [data.first, data.media, data.business])) 
-    )))Nichts gewählt.   
+    ((( unc( not(data.first or data.media or data.business) )
+    )))Nichts gewählt.
 }
 
 % Cover letter and contract twice, uncomment as needed

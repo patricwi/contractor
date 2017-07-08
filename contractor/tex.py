@@ -88,7 +88,6 @@ def render_tex(fairtitle="",
                prices={},
                days={},
                letterdata=[],
-               texpath='.',
                output_dir='.',
                contract_only=False,
                return_tex=False):
@@ -118,11 +117,7 @@ def render_tex(fairtitle="",
     Returns:
         str: filename (including path) to output
     """
-    # We need to make sure the tex path ends in a slash, use os.path for that
-    texpath = os.path.join(texpath, '')
-
     rendered = template.render(fairtitle=fairtitle,
-                               texpath=texpath,
                                president=president,
                                sender=sender,
                                prices=prices,
@@ -136,6 +131,7 @@ def render_tex(fairtitle="",
     if len(letterdata) == 1:
         basename += '_' + secure_filename(letterdata[0]['companyname'])
 
+    os.makedirs(output_dir, exist_ok=True)
     filename = os.path.join(output_dir, basename)
 
     texname = filename + '.tex'
