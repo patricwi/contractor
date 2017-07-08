@@ -18,7 +18,6 @@ app.config.from_object('config')
 
 # If directories have not been defined, use '.cache' in current working dir
 app.config.setdefault('STORAGE_DIR', path.abspath('./.cache'))
-app.config.setdefault('SETTINGS_DIR', path.abspath('./.cache'))
 
 # Set locale to ensure correct weekday format
 app.config.setdefault('LOCALE', 'de_CH.utf-8')
