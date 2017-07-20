@@ -20,10 +20,12 @@
 \kontaktpresident{((( president|l )))}
 
 % Sender of cover letters
-\setkomavar{signature}{((( sender|l|newline )))}
 
 \begin{document}
 ((* for data in letterdata *))
+\signature{((( sender|l|newline )))}
+
+
 % AMIV member responsible for company
 \representative{((( data.amivrepresentative|l )))}
 

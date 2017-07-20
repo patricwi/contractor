@@ -3,10 +3,11 @@
 """The app."""
 
 from os import getenv, getcwd, path
+from io import BytesIO
 from locale import setlocale, LC_TIME
 
 from flask import (Flask, render_template, send_file, redirect, url_for,
-                   session, request)
+                   session, request, make_response)
 
 from contractor.tex import render_tex
 from contractor.soapclient import Importer
@@ -35,6 +36,18 @@ CRM = Importer(app.config['SOAP_USERNAME'], app.config['SOAP_PASSWORD'])
 app.register_blueprint(api_auth)
 
 
+def send(data):
+    """Send data as file with headers to disable caching.
+
+    We want the preview to be refreshed, so need to avoid browser caching.
+    """
+    response = make_response(send_file(BytesIO(data),
+                                       mimetype='application/pdf',
+                                       cache_timeout=0))
+    response.headers['Content-Length'] = len(data)
+    return response
+
+
 # Routes
 
 @app.route('/', methods=['GET', 'POST'])
@@ -47,7 +60,7 @@ def main():
     # Check if output format is specified
     output_format = request.args.get('output', None)
     if output_format in ["mail", "email", "tex"]:
-        session['output_format'] = format
+        session['output_format'] = output_format
 
     # Form for yearly settings
     settings_form = YearlySettingsForm()
@@ -94,7 +107,7 @@ def send_contracts(id=None):
     # Get yearly settings
     yearly = load_yearly_settings()
 
-    filepath = render_tex(
+    compiled = render_tex(
         # Data
         letterdata=selection,
 
@@ -113,4 +126,4 @@ def send_contracts(id=None):
         output_dir=app.config['STORAGE_DIR']
     )
 
-    return send_file(filepath, as_attachment=True)
+    return send(compiled)

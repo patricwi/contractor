@@ -28,12 +28,17 @@ guaranteed)
 
 """
 
-from jinja2 import Environment, PackageLoader, StrictUndefined
+from os import path
 from datetime import datetime as dt
-from werkzeug.utils import secure_filename
+from tempfile import TemporaryDirectory
 import subprocess
-import os
 import re
+from jinja2 import Environment, PackageLoader, StrictUndefined
+
+
+class Error(Exception):
+    """Custom Error."""
+
 
 # Create the jinja env
 texenv = Environment(loader=PackageLoader('contractor', 'tex_templates'))
@@ -63,6 +68,7 @@ def escape_tex(value):
     for pattern, replacement in subs:
         newval = pattern.sub(replacement, newval)
     return newval
+
 
 texenv.filters.update({
     # Escaping for tex, short name because used often
@@ -115,7 +121,7 @@ def render_tex(fairtitle="",
         output_dir (str): path where results will be stored.
 
     Returns:
-        str: filename (including path) to output
+        bytes: pdf output
     """
     rendered = template.render(fairtitle=fairtitle,
                                president=president,
@@ -125,35 +131,40 @@ def render_tex(fairtitle="",
                                letterdata=letterdata,
                                contract_only=contract_only)
 
-    basename = 'contracts_' + dt.utcnow().strftime('%Y')
-
-    # If a single contract is requested, add the company name to the filename
-    if len(letterdata) == 1:
-        basename += '_' + secure_filename(letterdata[0]['companyname'])
-
-    os.makedirs(output_dir, exist_ok=True)
-    filename = os.path.join(output_dir, basename)
-
-    texname = filename + '.tex'
-
-    with open(texname, 'wb') as f:
-        f.write(rendered.encode('utf-8'))
-
     if return_tex:
-        return texname
-    else:
+        return bytes(rendered)
+
+    with TemporaryDirectory() as tempdir:
+        # Safe .tex file
+        texfile = path.join(tempdir, 'temp.tex')
+
+        with open(texfile, 'wb') as file:
+            file.write(rendered.encode('utf-8'))
+
+        # Run XeLaTeX
         commands = ["xelatex",
-                    "-output-directory", output_dir,
-                    "-interaction=batchmode", texname]
+                    "-output-directory", tempdir,
+                    "-interaction=batchmode", texfile]
 
-        # sic! needs to be run twice to insert references
-        # Capture output with PIPE (just to keep console clean)
-        # Check true requires status code 0
-        subprocess.run(commands, stdout=subprocess.PIPE, check=True)
-        subprocess.run(commands, stdout=subprocess.PIPE, check=True)
+        try:
+            # Run twice to resolve references
+            subprocess.check_output(commands)
+            subprocess.check_output(commands)
+        except FileNotFoundError:
+            # The command was not recognized
+            raise Error("The command '%s' failed. Is everything installed?"
+                        % commands[0])
+        except subprocess.CalledProcessError as e:
+            # Try to return tex log in error message
+            try:
+                with open(path.join(tempdir, 'temp.log'), 'rb') as file:
+                    log = file.read().decode('utf-8')
+                raise Error("Something went wrong during compilation!\n"
+                            "Here is the log content:\n\n %s" % log)
+            except FileNotFoundError:
+                # No log! Show output of command instead
+                raise Error(e.output.decode('utf-8'))
 
-        # Clean up
-        for ending in ['.tex', '.aux', '.log']:
-            os.remove('%s%s' % (filename, ending))
-
-        return filename + '.pdf'
+        # Return content of pdf so all files can be removed
+        with open(path.join(tempdir, 'temp.pdf'), 'rb') as file:
+            return file.read()
