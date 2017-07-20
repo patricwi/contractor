@@ -2,7 +2,7 @@
 
 """The app."""
 
-from os import path
+from os import getenv, getcwd, path
 from locale import setlocale, LC_TIME
 
 from flask import (Flask, render_template, send_file, redirect, url_for,
@@ -14,7 +14,12 @@ from contractor.api_auth import api_auth, protected
 from contractor.yearly_settings import YearlySettingsForm, load_yearly_settings
 
 app = Flask('contractor')
-app.config.from_object('config')
+app.config.from_pyfile('settings.py')
+
+# Try to load config specified by envvar, default to config.py in work dir
+default_config = path.join(getcwd(), 'config.py')
+config_file = getenv("CONTRACTOR_CONFIG", default_config)
+app.config.from_pyfile(config_file)
 
 # If directories have not been defined, use '.cache' in current working dir
 app.config.setdefault('STORAGE_DIR', path.abspath('./.cache'))

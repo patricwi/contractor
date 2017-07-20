@@ -1,5 +1,7 @@
 # Contractor
 
+TODO: Outdated.
+
 Simple tool to create amiv kontakt contracts from CRM
 
 This app uses the [suds fork by jurko](https://bitbucket.org/jurko/suds) to
