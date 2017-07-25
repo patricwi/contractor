@@ -132,7 +132,7 @@ def render_tex(fairtitle="",
                                contract_only=contract_only)
 
     if return_tex:
-        return bytes(rendered)
+        return rendered
 
     with TemporaryDirectory() as tempdir:
         # Safe .tex file
