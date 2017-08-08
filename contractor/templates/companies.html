@@ -2,13 +2,18 @@
 {% block icon %}fa-industry{% endblock %}
 {% block title %}Companies{% endblock %}
 {% block content %}
-<a class="btn btn-primary-outline" 
-   href={{ url_for('send_contracts') }}>
-  Download contracts for all companies
+<b>Download for all companies</b>:
+<a class="btn btn-primary-outline btn-sm" 
+   href={{ url_for('send_contracts', output_format='mail') }}>
+  full
 </a>
-<a class="btn btn-primary-outline" 
-href={{ url_for('refresh') }}>
-  Refresh companies
+<a class="btn btn-primary-outline btn-sm" 
+   href={{ url_for('send_contracts', output_format='email') }}>
+  contract
+</a>
+<a class="btn btn-primary-outline btn-sm" 
+   href={{ url_for('send_contracts', output_format='source') }}>
+  source
 </a>
 <br/><br/>
 
@@ -20,7 +25,7 @@ href={{ url_for('refresh') }}>
       <th>Booth</th>
       <th>Days</th>
       <th>Options</th>
-      <th>Contract</th>
+      <th>Download</th>
     </tr>
   </thead>
   <tbody>
@@ -47,10 +52,20 @@ href={{ url_for('refresh') }}>
         {{ c.media.name if c.media}}
       </td>
       <td>
-        <a class="btn btn-primary-outline"
+        <a class="btn btn-primary-outline btn-sm"
            style="vertical-align=middle;"
-           href="{{ url_for('send_contracts', id=loop.index0) }}">
-          Download contract
+           href="{{ url_for('send_contracts', output_format='mail', id=loop.index0) }}">
+          full
+        </a>
+        <a class="btn btn-primary-outline btn-sm"
+           style="vertical-align=middle;"
+           href="{{ url_for('send_contracts', output_format='email', id=loop.index0) }}">
+          contract
+        </a>
+        <a class="btn btn-primary-outline btn-sm"
+           style="vertical-align=middle;"
+           href="{{ url_for('send_contracts', output_format='tex', id=loop.index0) }}">
+          source
         </a>
       </td>
     </tr>

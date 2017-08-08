@@ -6,13 +6,12 @@ from os import getenv, getcwd, path
 from io import BytesIO
 from locale import setlocale, LC_TIME
 
-from flask import (Flask, render_template, send_file, redirect, url_for,
-                   session, request, make_response)
+from flask import (Flask, render_template, send_file,
+                   session, make_response)
 
 from contractor.tex import render_tex
 from contractor.soapclient import Importer
 from contractor.api_auth import api_auth, protected
-from contractor.yearly_settings import YearlySettingsForm, load_yearly_settings
 
 app = Flask('contractor')
 app.config.from_pyfile('settings.py')
@@ -64,55 +63,33 @@ def main():
 
     Includes output format and yearly settings.
     """
-    # Check if output format is specified
-    output_format = request.args.get('output', None)
-    if output_format in ["mail", "email", "tex"]:
-        session['output_format'] = output_format
-
-    # Form for yearly settings
-    settings_form = YearlySettingsForm()
-
-    # Safe new data if valid
-    settings_form.validate_and_save()
+    CRM.refresh()
 
     return render_template('main.html',
                            user=session['logged_in'],
-                           output_format=session.get('output_format', 'mail'),
-                           settings_form=settings_form,
+                           yearly_settings=app.config['YEARLY_SETTINGS'],
                            companies=CRM.data,
                            errors=CRM.errors)
 
 
-@app.route('/refresh')
+@app.route('/contracts/<output_format>')
+@app.route('/contracts/<output_format>/<int:id>')
 @protected
-def refresh():
-    """Get companies again."""
-    CRM.refresh()
-
-    return redirect(url_for('main'))
-
-
-@app.route('/contracts')
-@app.route('/contracts/<int:id>')
-@protected
-def send_contracts(id=None):
+def send_contracts(output_format, id=None):
     """Contract creation."""
     if id is None:
         selection = CRM.data
     else:
         selection = [CRM.data[id]]
 
-    # Get output format, mail is default
-    output = session.get("output_format", "mail")
-
     # Check if only tex is requested
-    return_tex = (output == "tex")
+    return_tex = (output_format == "tex")
 
     # Check if output format is email -> only single contract
-    contract_only = (output == "email")
+    contract_only = (output_format == "email")
 
     # Get yearly settings
-    yearly = load_yearly_settings()
+    yearly = app.config['YEARLY_SETTINGS']
 
     compiled = render_tex(
         # Data
