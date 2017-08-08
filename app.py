@@ -81,24 +81,24 @@ def main():
 
     Includes output format and yearly settings.
     """
-    CRM.refresh()
+    (data, errors) = CRM.get_companies()
 
     return render_template('main.html',
                            user=session['logged_in'],
                            yearly_settings=app.config['YEARLY_SETTINGS'],
-                           companies=CRM.data,
-                           errors=CRM.errors)
+                           companies=data,
+                           errors=errors)
 
 
 @app.route('/contracts/<output_format>')
-@app.route('/contracts/<output_format>/<int:id>')
+@app.route('/contracts/<output_format>/<company_id>')
 @protected
-def send_contracts(output_format, id=None):
+def send_contracts(output_format, company_id=None):
     """Contract creation."""
-    if id is None:
-        selection = CRM.data
+    if company_id is None:
+        selection = CRM.get_companies()[0]  # select data of (data, errors)
     else:
-        selection = [CRM.data[id]]
+        selection = [CRM.get_company(company_id)]
 
     # Check if output format is email -> only single contract
     contract_only = (output_format == "email")

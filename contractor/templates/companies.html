@@ -54,17 +54,17 @@
       <td>
         <a class="btn btn-primary-outline btn-sm"
            style="vertical-align=middle;"
-           href="{{ url_for('send_contracts', output_format='mail', id=loop.index0) }}">
+           href="{{ url_for('send_contracts', output_format='mail', company_id=c.id) }}">
           full
         </a>
         <a class="btn btn-primary-outline btn-sm"
            style="vertical-align=middle;"
-           href="{{ url_for('send_contracts', output_format='email', id=loop.index0) }}">
+           href="{{ url_for('send_contracts', output_format='email', company_id=c.id) }}">
           contract
         </a>
         <a class="btn btn-primary-outline btn-sm"
            style="vertical-align=middle;"
-           href="{{ url_for('send_contracts', output_format='tex', id=loop.index0) }}">
+           href="{{ url_for('send_contracts', output_format='tex', company_id=c.id) }}">
           source
         </a>
       </td>

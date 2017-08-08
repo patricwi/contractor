@@ -1,41 +1,32 @@
 # -*- coding: utf-8 -*-
 
-"""Provide a connector to the AMIV sugarcrm.
+"""Provide a connector to the AMIV sugarcrm."""
 
-sugarcrm provides a SOAP and a REST api. At the time this tool was written
-the REST api was unfortunately not available. Therefore SOAP is used.
-
-The python library suds is used, more exactly the fork by (jurko)
-[https://bitbucket.org/jurko/suds].
-
-Information for the AMIV side can be found in the (wiki)
-[intern.amiv.ethz.ch/wiki/SugarCRM#SOAP]. Although written for php the
-procedures can be copied without to much trouble.
-
-
-This file provides two classes, the first being a more generic wrapper for the
-amiv crm soap, the second being basically a wrapper around the first tailored
-to the contractor flask app.
-
-If you want to write your own python app using crm, you'll be all set copying
-the first class. Should it be used a lot it might be worth considering to move
-the connector to it's own project.
-
-In the wiki you will notice that the password in php is `md5('somestring')`.
-To get the python equivalent of this, you need:
-
-```
-from hashlib import md5
-password = md5(b'somestring').hexdigest()
-
-```
-Note: This is python 3.5. In earlier versions the import is different.
-    Furthermore notice that md5 requires the string as binary, so don't
-    forget the `b` prefix.
-"""
 from amivcrm import AMIVCRM
 
 from .choices import BoothChoice, PacketChoice
+
+# Fields needed
+FIELDS = [
+    'id',
+    'name',
+    'assigned_user_name',
+    'shipping_address_street',
+    'shipping_address_street_2',
+    'shipping_address_street_3',
+    'shipping_address_street_4',
+    'shipping_address_city',
+    'shipping_address_state',
+    'shipping_address_postalcode',
+    'shipping_address_country',
+    'tag1_c',
+    'tag2_c',
+    'tischgroesse_c',
+    'packet_c',
+    'mediapaket_c',
+    'kategorie_c',
+    'kontaktinfo_c'
+]
 
 
 class Importer(AMIVCRM):
@@ -43,14 +34,8 @@ class Importer(AMIVCRM):
 
     def __init__(self, *args, **kwargs):
         super(Importer, self).__init__(*args, **kwargs)
-        self.data = []
-        self.errors = {}
 
-    def refresh(self):
-        """Connect to CRM and refresh company data."""
-        (self.data, self.errors) = self._get_contract_data()
-
-    def _parse_company_response(self, response):
+    def _parse_response(self, response):
         """Parse data for the template.
 
         Args:
@@ -72,6 +57,7 @@ class Importer(AMIVCRM):
 
         # Basic fields
         letterdata = {
+            'id': response['id'],
             'amivrepresentative': response['assigned_user_name'],
             'companyname': response['name'],
             'companyaddress': response['shipping_address_street'],
@@ -151,51 +137,33 @@ class Importer(AMIVCRM):
 
         return letterdata
 
-    def _get_contract_data(self):
+    def get_company(self, company_id):
+        """Get data for a single company by id."""
+        response = self.getentry("Accounts", company_id, select_fields=FIELDS)
+
+        return self._parse_response(response)
+
+    def get_companies(self):
         """Get the data from soap to fill in the template.
 
         Returns:
             tuple (list, dict): The list contains all succesfully imported
-                companies formatted for the latex template.
+                company data.
                 The dictionary contains all errors and has the schema:
                 companyname: reason for error.
         """
-        # Fields needed
-
-        fields = [
-            'id',
-            'name',
-            'assigned_user_name',
-            'shipping_address_street',
-            'shipping_address_street_2',
-            'shipping_address_street_3',
-            'shipping_address_street_4',
-            'shipping_address_city',
-            'shipping_address_state',
-            'shipping_address_postalcode',
-            'shipping_address_country',
-            'tag1_c',
-            'tag2_c',
-            'tischgroesse_c',
-            'packet_c',
-            'mediapaket_c',
-            'kategorie_c',
-            'kontaktinfo_c'
-        ]
-
-        # Get data
-        results = self.get("Accounts",
-                           query="accounts_cstm.messeteilnahme_c = 1",
-                           order_by="accounts.name",
-                           select_fields=fields)
+        response = self.get("Accounts",
+                            query="accounts_cstm.messeteilnahme_c = 1",
+                            order_by="accounts.name",
+                            select_fields=FIELDS)
 
         # Parse data to fit template and collect errors
         data = []
         errors = {}
 
-        for company in results:
+        for company in response:
             try:
-                parsed = self._parse_company_response(company)
+                parsed = self._parse_response(company)
             except Exception as e:
                 errors[company['name']] = str(e)
             else:
