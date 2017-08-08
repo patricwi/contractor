@@ -3,13 +3,16 @@
 """The app."""
 
 from os import getenv, getcwd, path
+from datetime import datetime as dt
 from io import BytesIO
 from locale import setlocale, LC_TIME
 
 from flask import (Flask, render_template, send_file,
                    session, make_response)
 
-from contractor.tex import render_tex
+from jinjatex import Jinjatex
+from jinja2 import PackageLoader, StrictUndefined
+
 from contractor.soapclient import Importer
 from contractor.api_auth import api_auth, protected
 
@@ -28,8 +31,23 @@ app.config.setdefault('STORAGE_DIR', path.abspath('./.cache'))
 app.config.setdefault('LOCALE', 'de_CH.utf-8')
 setlocale(LC_TIME, app.config['LOCALE'])
 
-# Get CRM connection
+
 CRM = Importer(app.config['SOAP_USERNAME'], app.config['SOAP_PASSWORD'])
+
+TEX = Jinjatex(tex_engine='xelatex',
+               loader=PackageLoader('contractor', 'tex_templates'),
+               undefined=StrictUndefined,
+               trim_blocks=True)
+
+
+TEX.env.filters.update({
+    # Filters to parse date, including short one to list dates nicely
+    # Format: Dienstag, 18.10.2016
+    'fulldate': lambda date: dt.strftime(date, "%A, %d.%m.%Y"),
+    # Format: Dienstag, 18.
+    'shortdate': lambda date: dt.strftime(date, "%A, %d.")
+})
+
 
 # Get Auth
 app.register_blueprint(api_auth)
@@ -82,16 +100,13 @@ def send_contracts(output_format, id=None):
     else:
         selection = [CRM.data[id]]
 
-    # Check if only tex is requested
-    return_tex = (output_format == "tex")
-
     # Check if output format is email -> only single contract
     contract_only = (output_format == "email")
 
     # Get yearly settings
     yearly = app.config['YEARLY_SETTINGS']
 
-    compiled = render_tex(
+    options = dict(
         # Data
         letterdata=selection,
 
@@ -104,10 +119,9 @@ def send_contracts(output_format, id=None):
 
         # Output options
         contract_only=contract_only,
-        return_tex=return_tex,
-
-        # Storage (from config)
-        output_dir=app.config['STORAGE_DIR']
     )
 
-    return send(compiled)
+    if (output_format == "tex"):
+        return send(TEX.render_template('contract.tex', **options))
+    else:
+        return send(TEX.compile_template('contract.tex', **options))

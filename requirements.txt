@@ -3,3 +3,4 @@ Flask-WTF==0.14.2
 amivcrm==0.1
 requests==2.18.1
 ruamel.yaml==0.15.18
+jinjatex==0.1

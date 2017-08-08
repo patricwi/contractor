@@ -16,25 +16,25 @@
 \documentclass[kontakt]{amivletter}
 
 % Kontact settings
-\fairtitle{((( fairtitle|l )))}
-\kontaktpresident{((( president|l )))}
+\fairtitle{((( fairtitle|t )))}
+\kontaktpresident{((( president|t )))}
 
 % Sender of cover letters
 
 \begin{document}
 ((* for data in letterdata *))
-\signature{((( sender|l|newline )))}
+\signature{((( sender|t )))}
 
 
 % AMIV member responsible for company
-\representative{((( data.amivrepresentative|l )))}
+\representative{((( data.amivrepresentative|t )))}
 
 % Company info
-\name{((( data.companyname|l )))}
-\address{((( data.companyaddress|l|newline )))}
-\city{((( data.companycity|l )))}
-\country{((( data.companycountry|l )))}
-\contact{((( data.companyrepresentative|l)))}
+\name{((( data.companyname|t )))}
+\address{((( data.companyaddress|t )))}
+\city{((( data.companycity|t )))}
+\country{((( data.companycountry|t )))}
+\contact{((( data.companyrepresentative|t)))}
 
 \boothchoice{%
     % Uncomment the booth choice you need
