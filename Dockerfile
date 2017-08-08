@@ -1,28 +1,10 @@
-# Use Arch linux as base
-# This is an easy way to get up-to- date TexLive
-# If thats not needed the python image would suffice
-FROM dock0/arch
+FROM notspecial/amivtex
 
-# Set locale to something with utf-8 to avoid problems with files in python
-ENV LANG=en_US.UTF-8
-
-# Install python, tex (we also need latexextra) and uwsgi (requires gcc)
-RUN pacman -Sy --noconfirm gcc \
-    texlive-core texlive-bin texlive-latexextra \
-    python python-pip
-RUN pip install uwsgi
-
-
-## TeX Setup
-
-# Set HOME so we can use a local TEXMF tree for amivtex
-ENV HOME /
-COPY amivtex /texmf/tex/latex/amivtex
-
-# Ensure the de_CH.utf-8 locale exists, needed for weekday mapping
-RUN echo "de_CH.UTF-8 UTF-8" >> /etc/locale.gen ; locale-gen
-
-## App Setup
+# Install uwsgi (build tools are required)
+RUN apt-get update && apt-get install -y build-essential && \
+    pip install uwsgi && \
+    rm -rf /var/lib/apt/lists/* && \
+    apt-get purge -y --auto-remove build-essential
 
 COPY requirements.txt /requirements.txt
 RUN pip install -r requirements.txt
@@ -30,29 +12,19 @@ RUN pip install -r requirements.txt
 COPY contractor /contractor
 COPY app.py /app.py
 
-
-## Configuration Files
-
 # Environment variable for config, use path for docker secrets as default
 ENV CONTRACTOR_CONFIG=/run/secrets/contractor_config
 
-
-## Entrypoint and default command
-
-# Expose port 80
+# Run uwsgi to serve the app on port 80
 EXPOSE 80
-
-# Entrypoint script downloads non-public fonts at container start
-COPY entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
-
-# Run uwsgi to serve the app
 CMD ["uwsgi", \
 "--http", "0.0.0.0:80", \
 # More efficient usage of resources
 "--processes", "4", \
-# Otherwise uwsig will crash for bytesio
+# Otherwise uwsig will crash with bytesio
 "--wsgi-disable-file-wrapper", \
+# Exit if app cannot be started, e.g. if config is missing
+"--need-app", \
 # Allows accessing the app at / as well as /contractor
 "--manage-script-name", \
 "--mount", "/contractor=app:app"]
