@@ -2,5 +2,42 @@
 {% block icon %}fa-wrench{% endblock %}
 {% block title %}Yearly Settings{% endblock %}
 {% block content %}
-{{ yearly_settings }}
+<table class="table table-sm">
+<tr>
+  <th>Setting</th><th></th>
+</tr>
+<tr>
+  <td>Fair Title</td>
+  <td>{{ yearly.fairtitle }}</td>
+</tr>
+<tr>
+  <td>Kontakt President</td>
+  <td>{{ yearly.president }}</td>
+</tr>
+<tr>
+  <td>Sender of Letters</td>
+  <td>{{ yearly.sender }}</td>
+</tr>
+<tr>
+  <td>First Day</td>
+  <td>{{ yearly.days.first.strftime("%d.%m.%Y") }}</td>
+</tr>
+<tr>
+  <td>Second Day</td>
+  <td>{{ yearly.days.second.strftime("%d.%m.%Y") }}</td>
+</tr>
+<tr>
+  <th>Prices*</th><th></th>
+</tr>
+{% for key, price in yearly.prices.items() %}
+<tr>
+  <td>{{ key }}</td>
+  <td>{{ price }}</td>
+</tr>
+{% endfor %}
+</table>
+
+<p><i>* s=small, b=big, su=startup, A=category A, B=category B,
+        1/2=number of days</i></p>
+
 {% endblock %}

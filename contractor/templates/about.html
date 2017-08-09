@@ -2,10 +2,17 @@
 {% block icon %}fa-question{% endblock %}
 {% block title %}About this tool{% endblock %}
 {% block content %}
-This tool is still in development
-Explain full, contract, source
-
-Includes cover letter and contract in duplicate (.pdf)
-No cover letter, single contract per company (.pdf)
-Modify and compile manually (.tex)
+<p>
+The <em>amiv contractor</em> generates contracts for the
+<em>Kontakt</em> job fair.
+</p>
+<p>
+All company data is pulled from the <em>CRM</em> and can be edited there.
+</p>
+<p>
+The yearly settings are currently only stored in the 
+<a href="https://github.com/NotSpecial/contractor/blob/master/contractor/settings.py">git repository</a>, you can send a pull request yourself or
+ask Kontakt IT to update them for you. Eventually, the yearly settings
+are going to be managed in the <em>CRM</em> as well.
+</p>
 {% endblock %}        

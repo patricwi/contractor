@@ -84,7 +84,7 @@ def main():
 
     return render_template('main.html',
                            user=g.username,
-                           yearly_settings=app.config['YEARLY_SETTINGS'],
+                           yearly=app.config['YEARLY_SETTINGS'],
                            companies=data,
                            errors=errors)
 

@@ -2,21 +2,6 @@
 {% block icon %}fa-industry{% endblock %}
 {% block title %}Companies{% endblock %}
 {% block content %}
-<b>Download for all companies</b>:
-<a class="btn btn-primary-outline btn-sm" 
-   href={{ url_for('send_contracts', output_format='mail') }}>
-  full
-</a>
-<a class="btn btn-primary-outline btn-sm" 
-   href={{ url_for('send_contracts', output_format='email') }}>
-  contract
-</a>
-<a class="btn btn-primary-outline btn-sm" 
-   href={{ url_for('send_contracts', output_format='tex') }}>
-  source
-</a>
-<br/><br/>
-
 <table class="table table-sm table-responsive">
   <thead>
     <tr>

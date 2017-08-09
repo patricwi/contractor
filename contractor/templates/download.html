@@ -1,0 +1,37 @@
+{% extends 'card_layout.html' %}
+{% block icon %}fa-copy{% endblock %}
+{% block title %}Download{% endblock %}
+{% block content %}
+<p>
+  Download for all companies in a single document:
+</p>
+<table class="table" style="margin-bottom: 0em;">
+<tr>
+  <td>
+    <a class="btn btn-primary-outline btn-sm btn-block" 
+       href={{ url_for('send_contracts', output_format='mail') }}>
+      full
+    </a>    
+  </td>
+  <td><i>Includes cover letter and contract in duplicate (.pdf)</i></td>
+</tr>
+<tr>
+  <td>
+    <a class="btn btn-primary-outline btn-sm btn-block" 
+       href={{ url_for('send_contracts', output_format='email') }}>
+      contract
+    </a>
+  </td>
+  <td><i>No cover letter, single contract per company (.pdf)</i></td>
+</tr>
+<tr>
+  <td>
+    <a class="btn btn-primary-outline btn-sm btn-block" 
+       href={{ url_for('send_contracts', output_format='tex') }}>
+      source
+    </a>
+  </td>
+  <td><i>Modify to compile manually (.tex)</i></td>
+</tr>
+</table>
+{% endblock %}
