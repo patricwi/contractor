@@ -7,8 +7,7 @@ from datetime import datetime as dt
 from io import BytesIO
 from locale import setlocale, LC_TIME
 
-from flask import (Flask, render_template, send_file,
-                   session, make_response)
+from flask import (Flask, render_template, send_file, make_response, g)
 
 from jinjatex import Jinjatex
 from jinja2 import PackageLoader, StrictUndefined
@@ -84,7 +83,7 @@ def main():
     (data, errors) = CRM.get_companies()
 
     return render_template('main.html',
-                           user=session['logged_in'],
+                           user=g.username,
                            yearly_settings=app.config['YEARLY_SETTINGS'],
                            companies=data,
                            errors=errors)
