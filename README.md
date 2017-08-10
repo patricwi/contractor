@@ -1,35 +1,86 @@
 # Contractor
 
-TODO: Outdated.
+Simple tool to create amiv job fair contracts from CRM data.
 
-Simple tool to create amiv kontakt contracts from CRM
-
-This app uses the [suds fork by jurko](https://bitbucket.org/jurko/suds) to
-connect to the AMIV sugarCRM with SOAP.
-
-It this data to fill jinja2 templates which are then passed to latex.
-
-*Important:* The amiv tex package needs a quite new version of latex, you can
-run the tests to make sure everything compiles.
-
-The interface itself is based on [flask](flask.pocoo.org) and uses 
-[flask-wtforms](flask-wtf.readthedocs.org) and 
+The interface itself is based mainly on [flask](flask.pocoo.org) and uses 
 [bootstrap v4](v4-alpha.getbootstrap.com)
 
-## Setup
+## Configuration
 
-Before you can run anything, you need to create a user config and storage
-directories.
+A config file with the SugarCRM
+credentials is needed. Both username and password can be found in the
+[AMIV Wiki](https://intern.amiv.ethz.ch/wiki/SugarCRM#SOAP).
 
-You can simply call
+Create the file, e.g. called `config.py`:
 
+```python
+SOAP_USERNAME = "..."
+SOAP_PASSWORD = "..."
 ```
-python init.py
+
+## Deployment with Docker
+
+A docker image is available under `notspecial/contractor` in the docker hub.
+Both the config file and a URL to access the (non-public) DINPro
+fonts are needed to run it. The URL can also be found in the
+[AMIV Wiki](https://wiki.amiv.ethz.ch/Corporate_Design#DINPro).
+Put the URL into a file, e.g. called `font_url`, next to the config.
+
+The most convenient way to pass the config and URL to the container is
+using [Docker secrets](https://docs.docker.com/engine/swarm/secrets/#read-more-about-docker-secret-commands).
+
+```bash
+# Create secrets (read below if you want to name them differently)
+docker secret create font_url font_url
+docker secret create contractor_config config.py
+
+# Create service (image will be pulled from docker hub)
+docker service create \
+    --name contractor \
+    --secret contractor_config \
+    --secret font_url \
+    --publish 3000:80 \
+    notspecial/contractor
+
+# Done! Check if everything works
+curl 127.0.0.1:3000
 ```
 
-and this will be taken care of. You also need to input a locale that works on 
-your system. It is important that the locale provides german weekdays, or else
-the contracts will look bad.
+The image assumes the files to be found at `/run/secrets/font_url` and
+`/run/secrets/contractor_config`. Therefore, if you choose different
+names for your secrets, set the environment
+variables `CONTRACTOR_CONFIG` and `FONT_URL_FILE`
+to the paths of your secrets (by default `/run/secrets/<secret_name>`).
+
+## Development
+
+For compilation of the tex files,
+[amivtex](https://github.com/NotSpecial/amivtex) needs to be installed along
+with the DINPro fonts. Take a look at the repository for instructions.
+
+You need Python 3. The following commands create a virtual environment and
+install dependencies:
+
+```bash
+# (If not yet done: clone and go into folder)
+git clone https://github.com/NotSpecial/contractor
+cd contractor
+
+# Create and activate virtual environment
+python -m venv env
+source env/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Point app at config (optional, default is 'config.py' in current working dir)
+export CONTRACTOR_CONFIG=...
+
+# Start development server
+export FLASK_APP=app.py
+export FLASK_DEBUG=1
+flask run
+```
 
 ## Testing
 
