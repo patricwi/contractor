@@ -1,5 +1,10 @@
 FROM notspecial/amivtex
 
+# Ensure the de_CH.utf-8 locale exists, needed for weekday mapping
+RUN apt-get update && apt-get install -y locales && \
+    locale-gen de_CH.UTF-8 && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install uwsgi (build tools are required)
 RUN apt-get update && apt-get install -y build-essential && \
     pip install uwsgi && \
