@@ -23,7 +23,8 @@ ENV CONTRACTOR_CONFIG=/run/secrets/contractor_config
 # Run uwsgi to serve the app on port 80
 EXPOSE 80
 CMD ["uwsgi", \
-"--http", "0.0.0.0:80", \
+# [::] is required to listen for both IPv4 and IPv6
+"--http", "[::]:80", \
 # More efficient usage of resources
 "--processes", "4", \
 # Otherwise uwsig will crash with bytesio
