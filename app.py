@@ -8,7 +8,7 @@ from io import BytesIO
 from locale import setlocale, LC_TIME
 
 from flask import (Flask, render_template, send_file, make_response, g)
-
+from werkzeug import secure_filename
 from jinjatex import Jinjatex
 from jinja2 import PackageLoader, StrictUndefined
 
@@ -57,15 +57,20 @@ def send(data):
 
     We want the preview to be refreshed, so need to avoid browser caching.
     """
-
     try:
+        filename = '%s.pdf' % g.get('company', 'contracts')
         response = make_response(send_file(BytesIO(data),
                                            mimetype='application/pdf',
+                                           attachment_filename=filename,
+                                           as_attachment=True,
                                            cache_timeout=0))
         response.headers['Content-Length'] = len(data)
     except TypeError:
+        filename = '%s.tex' % g.get('company', 'source')
         response = make_response(send_file(BytesIO(data.encode()),
                                            mimetype='text/plain',
+                                           attachment_filename=filename,
+                                           as_attachment=True,
                                            cache_timeout=0))
         response.headers['Content-Length'] = len(data.encode())
     return response
@@ -98,6 +103,7 @@ def send_contracts(output_format, company_id=None):
         selection = CRM.get_companies()[0]  # select data of (data, errors)
     else:
         selection = [CRM.get_company(company_id)]
+        g.company = secure_filename(selection[0]['companyname'])
 
     # Check if output format is email -> only single contract
     contract_only = (output_format == "email")
