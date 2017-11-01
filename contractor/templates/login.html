@@ -3,66 +3,114 @@
 <html style="height: 100%;">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Contractor</title>
+  <style>
+    /* Defaults */
+    body {
+      transition: all 0.20s ease-in-out;
+      background-color: GhostWhite;
+      margin: 0;
+      padding: 0;
+      font-family: Roboto, Helvetia, sans-serif;
+    }
 
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.2/css/bootstrap.min.css" integrity="sha384-y3tfxAZXuh4HwSYylfB+J125MxIs6mR5FOHamPBG064zB+AFeWH94NdvaCBm8qnd" crossorigin="anonymous">
+    /* Styling and non-responsive Sizes*/
+
+    header {
+      background-color: #1f2d54;
+      width: 100%;
+      padding-top: 1rem;
+      padding-bottom: 1rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    main {
+      text-align: center;
+    }
+
+    form input {
+      background: GhostWhite;
+      margin: 0 0.5rem 1rem 0.5rem;
+      border: 1px solid #1f2d54;
+      padding: 1rem;
+      box-sizing: border-box;
+      outline: none;
+    }
+
+    form input:focus,
+    form input:hover {
+      border: 1.5px solid #e8462b;
+    }
+
+    form input[type="submit"] {
+      color: #1f2d54;
+      text-transform: uppercase;
+      font-weight: bold;
+    }
+
+    form input[type="submit"]:focus,
+    form input[type="submit"]:hover {
+      background: #e8462b;
+      color: White;
+    }
+
+    .error { color: red; }
+
+
+    /* Sizing */
+
+    body { padding-top: 33vh; }
+    header img { width: 45rem; }
+    main { width: 40rem; margin: 0 auto; }
+
+    form input[type="text"],
+    form input[type="password"] { width: 15rem; }
+    form input[type="submit"] { width: 6rem; }
+
+    /* Scale down if not wide enough */
+    @media (max-width: 50rem) {
+      body { padding-top: 20vh; }
+      header img { width: 90%; }
+      main { width: 80%; }
+      form { text-align: right; }
+
+      form input { margin-left: 0; margin-right: 0; }
+      form input[type="text"],
+      form input[type="password"] { width: 100%; }
+    }
+
+    
+  </style>
 </head>
 
-<body style="background-color: #1f2d54; height: 100%;">
-  <div style="width: 100%;
-              position: absolute;
-              top: 50%;
-              left: 50%;
-              transform: translateX(-50%) translateY(-50%);">
-    <div class="container"
-         style="max-width: 768px;">
-      <img src={{ url_for('static', filename='logo.svg') }}
-             width="100%" style="margin-top: 2em; margin-bottom: 1em;"/>
-    </div>
-    <br/>
-    <div class="container" style="max-width: 500px">
-      <div class="card">
-        <div class="card-block"
-             style="padding-bottom: 0em;">
-          {% if api_error %}
-          <p class="text-danger">
-            <b>AMIVAPI is unreachable.</b><br /> 
-            Please contact kontakt-it@amiv.ethz.ch or it@amiv.ethz.ch!
-          </p>
-          {% endif %}
-          {% if login_error %}
-          <p class="text-danger">
-            <i>Invalid username/password. Please try again!</i>
-          </p>
-          {% endif %}
+<body>
+  <header>
+    <img src={{ url_for('static', filename='logo.svg') }} />
+  </header>
 
-          <form method="POST" action={{ url_for('api_auth.login') }}>
-              <fieldset class="form-group">
-                {{ login_form.hidden_tag() }}
-                
-                <!-- username field -->
-                <div class="input-group">
-                  {{ login_form.user(class_="form-control") }}
-                  <span class="input-group-addon" id="basic-addon2">
-                    @ethz.ch
-                  </span>
-                </div>
-                {{ utils.helpers(login_form.user) }}
-              </fieldset>
-              <fieldset class="form-group">
-                <!-- password field -->
-                {{ login_form.password(class_="form-control") }}
-                {{ utils.helpers(login_form.password) }}
-              </fieldset>
-              <fieldset class="form-group">
-              <button type="submit" 
-                      class="btn btn-primary-outline pull-xs-right">
-                Login
-              </fieldset>
-              </div>
-          </form>
-        </div>
-      </div>
-    </div>
-  </div>
+  <main>
+    <!-- Input -->
+    <form method="POST" action={{ url_for('api_auth.login') }}>
+      {{ login_form.hidden_tag() }}
+      {{ login_form.user(class_="") }}
+      {{ login_form.password(class_="form-control") }}
+      <input type=submit value='Log in'></input>
+    </form>    
+      
+    <!-- Errors -->
+    {% if api_error %}
+    <p class="error">
+      <b>AMIVAPI is unreachable.</b><br /> 
+      Please contact kontakt-it@amiv.ethz.ch or it@amiv.ethz.ch!
+    </p>
+    {% endif %}
+    {% if login_error %}
+    <p class="error">
+      Invalid username/password. Please try again!
+    </p>
+    {% endif %}
+
+  </main>
 </body>
