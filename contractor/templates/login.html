@@ -26,9 +26,7 @@
       text-align: center;
     }
 
-    main {
-      text-align: center;
-    }
+    main { text-align: center; }
 
     form input {
       background: GhostWhite;
@@ -59,7 +57,7 @@
     .error { color: red; }
 
 
-    /* Sizing */
+    /* Responsive Sizing */
 
     body { padding-top: 33vh; }
     header img { width: 45rem; }
@@ -69,9 +67,9 @@
     form input[type="password"] { width: 15rem; }
     form input[type="submit"] { width: 6rem; }
 
-    /* Scale down if not wide enough */
-    @media (max-width: 50rem) {
-      body { padding-top: 20vh; }
+    /* Scale down if not wide or high enough */
+    @media (max-width: 50rem), (max-height: 40rem) {
+      body { padding-top: 0; }
       header img { width: 90%; }
       main { width: 80%; }
       form { text-align: right; }
