@@ -1,0 +1,33 @@
+\documentclass{amivletter}
+% You can use the following options:
+% kontakt -- use the kontakt logos and addresses
+% contract -- utilities to create contracts (see other example!)
+
+% Generate random text for demo purposes
+\usepackage{blindtext}
+
+\begin{document}
+\subject{((( subject|t )))}
+\signature{((( signature|t )))}
+
+\genericamivinfoblock
+
+\begin{letter}{%
+    ((( destination_address|t )))
+}
+
+% Opening be empty, but you need the command!
+\opening{((( opening|t )))}
+
+((( body )))
+
+\closing{((( closing|t )))}
+((* if attachments *))
+\encl{
+	((( attachments|t )))
+}
+((* endif *))
+
+\end{letter}
+
+\end{document}

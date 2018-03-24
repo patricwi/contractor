@@ -20,17 +20,14 @@
       <div class="col-lg-5 col-xl-3">
         <!-- Info text -->
         {% include 'about.html' %}
-        {% include 'download.html' %}
-        {% include 'settings.html' %}
+        <a href="{{url_for('main')}}" type="submit"
+           class="btn btn-primary-outline btn-sm btn-block">
+           cancel editing and go back
+        </a>
       </div>
-      <div class="col-lg-7 col-xl-9">
-        <!-- Errors -->
-        {% if errors %}
-        {% include 'errors.html' %}
-        {% endif %}
-
-        <!-- Companies -->
-        {% include 'companies.html' %}
+      <div class="col-lg-7 col-xl-6">
+        <!-- Fields for letter -->
+        {% include 'letter.html' %}
       </div>
     </div>
   </div>

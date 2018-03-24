@@ -1,13 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """The app."""
-
 from os import getenv, getcwd, path
 from datetime import datetime as dt
 from io import BytesIO
 from locale import setlocale, LC_TIME
 
-from flask import (Flask, render_template, send_file, make_response, g)
+from flask import (Flask, render_template, send_file, make_response, g, request)
 from werkzeug import secure_filename
 from jinjatex import Jinjatex
 from jinja2 import PackageLoader, StrictUndefined
@@ -94,6 +93,29 @@ def main():
                            errors=errors)
 
 
+@app.route('/custom/', methods=['GET', 'POST'])
+@protected
+def custom():
+    """View to show and create customizable letter."""
+    fields = ['destination_address', 'subject', 'opening', 'body', 'closing',
+              'signature', 'attachments']
+    options = {field: request.form.get(field, '') for field in fields}
+
+    # Fields must not be empty
+    empty_ok = ['attachments']
+    errors = {field: ((request.method == 'POST') and
+                      (field not in empty_ok) and (not value))
+              for field, value in options.items()}
+
+    if request.method == 'POST' and not any(errors.values()):
+        return send(TEX.compile_template('custom_letter.tex', **options))
+
+    return render_template('custom.html',
+                           user=g.username,
+                           values=options,
+                           errors=errors)
+
+
 @app.route('/contracts/<output_format>')
 @app.route('/contracts/<output_format>/<company_id>')
 @protected
@@ -125,7 +147,7 @@ def send_contracts(output_format, company_id=None):
 
         # Output options
         contract_only=contract_only,
-        letter_only = letter_only
+        letter_only=letter_only
     )
     if (output_format == "tex"):
         return send(TEX.render_template('contract.tex', **options))

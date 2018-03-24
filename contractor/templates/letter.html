@@ -1,0 +1,68 @@
+{% macro error(name) -%}
+{% if errors[name] %}
+<br />
+<small><i style="color: red;">Must not be empty.</i></small>
+{% endif %}
+{%- endmacro %}
+{% macro textinput(name, placeholder="", width="100%") -%}
+<tr>
+  <td style="width: 33%; white-space: nowrap;">
+    <i>{{ name|capitalize }}</i>
+  </td>
+  <td>
+    <input type="text"
+           name="{{ name }}" placeholder="{{ placeholder}}"
+           value="{{ values[name] }}"
+           style="width: {{ width }};"></input>
+    {{ error(name )}}
+  </td>
+</tr>
+{%- endmacro %}
+{% macro textarea(name, placeholder="", rows=1, label="", width="100%") -%}
+<tr>
+  <td style="width: 33%; white-space: nowrap;">
+    {% if label %}
+      <i>{{ label }}</i>
+    {% else %}
+      <i>{{ name|capitalize }}</i>
+    {% endif %}
+  </td>
+  <td>
+    <textarea name="{{ name }}" placeholder="{{ placeholder }}"
+              value="{{ values[name] }}" style="width: {{ width }};"
+              rows={{ rows }}>{{ values[name] }}</textarea>
+    {{ error(name )}}
+  </td>
+</tr>
+{%- endmacro %}
+{% extends 'card_layout.html' %}
+{% block icon %}fa-copy{% endblock %}
+{% block title %}Custom Letter{% endblock %}
+{% block content %}
+<p>
+  Please provide the following fields:
+</p>
+<form action="{{url_for('custom')}}" method="post">
+<table class="table" style="margin-bottom: 0em;">
+{{ textarea("destination_address",
+            placeholder="Mrs. Company\nCompany\n1234 City\nStreet",
+            rows=4,
+            width="50%",
+            label="Destination Address") }}
+{{ textinput("subject", "Kontakt") }}
+{{ textinput("opening", "Dear Mrs. Company,") }}
+{{ textarea("body", rows=15, label="Text") }}
+{{ textinput("closing", "Sincerely,") }}
+{{ textinput("signature", "Your Name,", "50%") }}
+{{ textarea("attachments", rows=3, width="50%") }}
+<tr>
+<td></td>
+ <td>
+ 	<button type="submit" class="btn btn-primary-outline btn-sm btn-block">
+       Create letter (.pdf)
+    </button>
+ </td>
+</tr>
+</table>
+</form>
+{% endblock %}

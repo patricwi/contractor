@@ -5,7 +5,7 @@
 from datetime import datetime as dt
 
 # URL for amivapi
-AMIVAPI_URL = 'https://amiv-api.ethz.ch/'
+AMIVAPI_URL = 'https://api-dev.amiv.ethz.ch/'
 
 # Yearly fair settings, move to CRM as soon as possible
 YEARLY_SETTINGS = {

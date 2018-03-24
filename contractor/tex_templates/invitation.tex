@@ -1,0 +1,103 @@
+% This .tex file was created automatically.
+
+((= The latex escape filter was added to all text fields.
+    Additionally the companyaddress has thew newline filter applied
+    booth choice contains a command, therefore no latex escape is applied
+
+    To make the template as editable as possible, we also do the following:
+    Whenever there are several choices for a contract item, i.e. booth choice,
+    we put them all into the document and just uncomment one.
+    This makes it easy to modify the resulting .tex manually
+
+    For this purpose we now create a uncommenting macro =))
+((* macro unc(condition) -*))
+((( '' if condition else '%' )))
+((*- endmacro *))
+\documentclass[kontakt]{amivletter}
+
+\fairtitle{((( fairtitle|t )))}
+\signature{((( president|t )))}
+\subject{AMIV Kontakt.18}
+
+\begin{document}
+((* for data in letterdata *))
+% \signature{((( sender|t )))}
+% AMIV member responsible for company
+\representative{((( data.amivrepresentative|t )))}
+
+
+% GERMAN
+
+\begin{letter}{%
+    ((( data.companyname|t )))\\
+    ((( data.companyrepresentative|t)))\\
+    ((( data.companyaddress|t )))\\
+    ((( data.companycity|t )))\\
+    ((( data.companycountry|t )))%
+}
+
+
+\opening{Sehr geehrte Damen und Herren,}
+
+Bereits zum achtzehnten Mal wird diesen Herbst die AMIV Kontakt Firmenmesse stattfinden --
+Die Kontakt.18 ist die Jobmesse der Fachvereine AMIV und OBIS für Studierende und AbsolventInnen der ETH Zürich.
+Die Interessenten gehören den Studiengängen Maschinenbau \& Verfahrenstechnik (MAVT),
+Elektrotechnik \& Informationstechnologie (ITET) sowie Management, Technology \& Economics (MTEC) an.
+Auch dieses Jahr sollen Sie genügend Gelegenheit haben,
+sich angehenden ETH Ingenieuren zu präsentieren und Kontakte mit den Studierenden zu knüpfen.
+\medbreak
+Wir möchten Sie hiermit herzlich einladen, an der AMIV Kontakt.18 die dieses Jahr vom \textbf{16. -- 17. Oktober 2018} stattfindet, teilzunehmen.
+Im Anhang dieser Mail befindet sich die komplette Informationsbroschüre.
+\medbreak
+\noindent Die Anmeldung öffnet am \textbf{9. April} auf unsere Website: \textbf{www.kontakt.amiv.ethz.ch}
+\medbreak
+Wir laden Sie auch ein, einen Blick auf unsere Homepage \textbf{www.kontakt.amiv.ethz.ch} zu werfen,
+auf der Sie stets die aktuellsten Informationen zur Messe finden und auch unser Infobooklet herunterladen können.
+\medbreak
+Falls Sie Fragen oder Anliegen haben, stehen Ihnen unsere Firmenbetreuer unter \textbf{kontakt@amiv.ethz.ch} gerne zur Verfügung. 
+Es würde uns sehr freuen, Sie an der AMIV Kontakt.18 begrüssen zu dürfen! 
+
+\closing{Im Namen des gesamten Kontakt.18 Teams}
+
+
+\end{letter}
+
+% ENGLISCH
+
+\begin{letter}{%
+    ((( data.companyname|t )))\\
+    ((( data.companyrepresentative|t)))\\
+    ((( data.companyaddress|t )))\\
+    ((( data.companycity|t )))\\
+    ((( data.companycountry|t )))%
+}
+
+\opening{Dear Madam or Sir,}
+
+This autumn the AMIV Kontakt career fair will be held for the eighteenth year.
+Kontakt.18 is the students associations, AMIV and OBIS, career fair for students and graduates of ETH Zürich.
+The students belong to the following departments:
+Mechanical Engineering \& Process Engineering (MAVT), Electrical Engineering \& Information Technology (ITET) as well as
+Management, Technology \& Economics (MTEC).
+Once again, this year, you will have great opportunities to present your company and to talk to ETH students and future engineers.
+\medbreak
+Thereby, we want to warmly invite you to participate in the AMIV Kontakt.18,
+which will take place on \textbf{October 16th and 17th 2018}.
+Attached to this letter, you will find the fair information booklet.
+\medbreak
+\noindent The registrations will open on \textbf{April 9th} on our website: \textbf{www.kontakt.amiv.ethz.ch}
+\medbreak
+We also invite you to visit our homepage where you can always find the latest new about our fair and also download our information booklet. 
+\medbreak\noindent
+If you have any questions, please do not hesitate to contact our company advisors at \textbf{kontakt@amiv.ethz.ch}.
+We would be very happy to welcome you at the AMIV Kontakt.18!
+
+\closing{On behalf of the entire Kontakt.18 committee,}
+
+
+\end{letter}
+
+
+
+((* endfor *))
+\end{document}

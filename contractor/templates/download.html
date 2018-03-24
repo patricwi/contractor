@@ -8,16 +8,25 @@
 <table class="table" style="margin-bottom: 0em;">
 <tr>
   <td>
-    <a class="btn btn-primary-outline btn-sm btn-block" 
+    <a class="btn btn-primary-outline btn-sm btn-block"
+       href={{ url_for('custom') }}>
+       custom
+    </a>
+  </td>
+  <td><i>Create a customized letter (.pdf)</i></td>
+</tr>
+<tr>
+  <td>
+    <a class="btn btn-primary-outline btn-sm btn-block"
        href={{ url_for('send_contracts', output_format='mail') }}>
       full
-    </a>    
+    </a>
   </td>
   <td><i>Includes cover letter and contract in duplicate (.pdf)</i></td>
 </tr>
 <tr>
   <td>
-    <a class="btn btn-primary-outline btn-sm btn-block" 
+    <a class="btn btn-primary-outline btn-sm btn-block"
        href={{ url_for('send_contracts', output_format='email') }}>
       contract
     </a>
@@ -27,7 +36,7 @@
 <!-- I edited things here -->
 <tr>
   <td>
-    <a class="btn btn-primary-outline btn-sm btn-block" 
+    <a class="btn btn-primary-outline btn-sm btn-block"
        href={{ url_for('send_contracts', output_format='letter') }}>
       letter
     </a>
@@ -37,7 +46,7 @@
 <!-- End -->
 <tr>
   <td>
-    <a class="btn btn-primary-outline btn-sm btn-block" 
+    <a class="btn btn-primary-outline btn-sm btn-block"
        href={{ url_for('send_contracts', output_format='tex') }}>
       source
     </a>
