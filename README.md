@@ -35,11 +35,12 @@ docker secret create font_url font_url
 docker secret create contractor_config config.py
 
 # Create service (image will be pulled from docker hub)
+# You can change the port from 300 to something else
 docker service create \
     --name contractor \
     --secret contractor_config \
     --secret font_url \
-    --publish 3000:80 \
+    --publish 3000:8080 \
     notspecial/contractor
 
 # Done! Check if everything works

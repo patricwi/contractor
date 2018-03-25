@@ -5,32 +5,25 @@ RUN apt-get update && apt-get install -y locales && \
     echo "de_CH.UTF-8 UTF-8" >> /etc/locale.gen && locale-gen && \
     rm -rf /var/lib/apt/lists/*
 
-# Install uwsgi (build tools are required)
-RUN apt-get update && apt-get install -y build-essential && \
-    pip install uwsgi && \
-    rm -rf /var/lib/apt/lists/* && \
-    apt-get purge -y --auto-remove build-essential
-
-COPY requirements.txt /requirements.txt
-RUN pip install -r requirements.txt
-
-COPY contractor /contractor
-COPY app.py /app.py
-
+# Create user with home directory and no password and change workdir
+RUN useradd -md /contractor contractor
+WORKDIR /contractor
+# Run on port 8080 (does not require priviledge to bind)
+EXPOSE 8080
 # Environment variable for config, use path for docker secrets as default
 ENV CONTRACTOR_CONFIG=/run/secrets/contractor_config
 
-# Run uwsgi to serve the app on port 80
-EXPOSE 80
-CMD ["uwsgi", \
-# [::] is required to listen for both IPv4 and IPv6
-"--http", "[::]:80", \
-# More efficient usage of resources
-"--processes", "4", \
-# Otherwise uwsig will crash with bytesio
-"--wsgi-disable-file-wrapper", \
-# Exit if app cannot be started, e.g. if config is missing
-"--need-app", \
-# Allows accessing the app at / as well as /contractor
-"--manage-script-name", \
-"--mount", "/contractor=app:app"]
+# Install bjoern and dependencies for install (we need to keep libev)
+RUN apt-get update && apt-get install -y \
+        musl-dev python-dev gcc libev-dev && \
+    pip install bjoern
+
+# Copy files to /contractor directory, install requirements
+COPY ./ /contractor
+RUN pip install -r /contractor/requirements.txt
+
+# Switch user
+USER contractor
+
+# Start bjoern
+CMD ["python3", "server.py"]
