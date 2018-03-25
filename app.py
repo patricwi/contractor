@@ -88,7 +88,7 @@ def main():
     (data, errors) = CRM.get_companies()
 
     return render_template('main.html',
-                           user=g.username,
+                           user=g.get('username', ''),
                            yearly=app.config['YEARLY_SETTINGS'],
                            companies=data,
                            errors=errors)
