@@ -110,6 +110,7 @@ def send_contracts(output_format, company_id=None):
 
     # Get yearly settings
     yearly = app.config['YEARLY_SETTINGS']
+    letter_only = (output_format == "letter")
 
     options = dict(
         # Data
@@ -124,8 +125,8 @@ def send_contracts(output_format, company_id=None):
 
         # Output options
         contract_only=contract_only,
+        letter_only = letter_only
     )
-
     if (output_format == "tex"):
         return send(TEX.render_template('contract.tex', **options))
     else:

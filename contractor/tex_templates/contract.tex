@@ -94,12 +94,14 @@
     )))Nichts gewählt.
 }
 
-% Cover letter and contract twice, uncomment as needed
-% First the cover letter
+% Depending on options:
+% -Only cover letter
+% -Only contract once
+% -Cover letter once and contract twice
+
 ((( unc(not contract_only) )))\makecoverletter
-% Next the contract (in duplicate if needed)
-\makecontract
-((( unc(not contract_only) )))\makecontract
+((( unc(not letter_only) )))\makecontract
+((( unc(not letter_only and not contract_only) )))\makecontract
 
 ((* endfor *))
 \end{document}

@@ -9,16 +9,16 @@ AMIVAPI_URL = 'https://amiv-api.ethz.ch/'
 
 # Yearly fair settings, move to CRM as soon as possible
 YEARLY_SETTINGS = {
-    'fairtitle': 'AMIV Kontakt.17',
+    'fairtitle': 'AMIV Kontakt.18',
     # president of kontakt team
-    'president': 'Celina Rhonheimer',
+    'president': 'Marie Matos',
     # Sender of Contracts, usually treasurer of kontakt team
     'sender': 'Patrick Wintermeyer\nQuästor Kommission Kontakt',
 
     # Fair days,
     'days': {
-        'first': dt(2017, 10, 17),
-        'second': dt(2017, 10, 18),
+        'first': dt(2018, 10, 16),
+        'second': dt(2018, 10, 17),
     },
 
     # Prices, all in francs
