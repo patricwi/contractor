@@ -1,4 +1,4 @@
-**NOTE:** The development of this tools has been moved to [the ETH gitlab](https://gitlab.ethz.ch/amiv/kontakt/contractor)!
+**NOTE:** The development of this tool has been moved to [the ETH gitlab](https://gitlab.ethz.ch/amiv/kontakt/contractor)!
 
 # Contractor
 
