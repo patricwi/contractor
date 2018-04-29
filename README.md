@@ -1,3 +1,5 @@
+**NOTE:** The development of this tools has been moved to [the ETH gitlab](https://gitlab.ethz.ch/amiv/kontakt/contractor)!
+
 # Contractor
 
 Simple tool to create amiv job fair contracts from CRM data.
